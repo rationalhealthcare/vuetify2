@@ -56,3 +56,11 @@ jobs:
 
           docker tag image $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
+      - uses: actions-hub/kubectl@master
+        env:
+          K8S_NAMESPACE: kergiva-org
+          K8S_DEPLOYMENT: appdash
+          KUBE_CONFIG: ${{ secrets.k8s_kergiva_admin_kube_config }}
+        with:
+          args: -n ${{ env.K8S_NAMESPACE }} rollout restart deployment ${{ env.K8S_DEPLOYMENT }}
