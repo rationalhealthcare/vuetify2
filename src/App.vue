@@ -39,10 +39,20 @@
           </v-toolbar-title>
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn href="/signup" :disabled="this.user" icon>
+        <v-btn
+          @click="clicked('signup')"
+          xhref="/signup"
+          :disabled="this.user"
+          icon
+        >
           <v-icon>mdi-account-plus</v-icon>
         </v-btn>
-        <v-btn href="/signin" :disabled="this.user" icon>
+        <v-btn
+          @click="clicked('signin')"
+          xhref="/signin"
+          :disabled="this.user"
+          icon
+        >
           <v-icon>mdi-account</v-icon>
         </v-btn>
 
@@ -79,14 +89,6 @@ export default {
   data: function() {
     return {
       drawer: false
-      /* xkey: false, */
-      /* xgroup: null, */
-      /*       xappbar: {
-        navBarTrigger: {
-          right: null,
-          show: null
-        }
-      } */
     };
   },
   mounted: function() {
@@ -183,6 +185,15 @@ export default {
   },
 
   methods: {
+    clicked(value) {
+      if (value === "signin") {
+        this.$router.push({ path: "/signin" });
+      } else if (value === "signup") {
+        this.$router.push({ path: "/signup" });
+      } else {
+        //error
+      }
+    },
     getSignedInUser() {
       this.$store.dispatch("Auth/getSignedInUser");
     },
