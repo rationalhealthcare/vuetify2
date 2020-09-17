@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+import Home from "@/views/Home.vue";
 import SignupPage from "@/views/SignupPage.vue";
 import SigninPage from "@/views/SigninPage.vue";
 //import Authguard from "./authguard.js";
