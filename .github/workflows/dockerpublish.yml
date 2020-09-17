@@ -15,7 +15,7 @@ on:
 
 env:
   # TODO: Change variable to your image's name.
-  IMAGE_NAME: kergiva-web
+  IMAGE_NAME: AppDash
 
 jobs:
   # Push image to GitHub Packages.
