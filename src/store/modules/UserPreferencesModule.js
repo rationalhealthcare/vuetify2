@@ -53,6 +53,10 @@ const mutations = {
   },
   setThemeUserPreferences(state, value) {
     state.userPreferences.themePreferences.themePreference = value;
+  },
+  deleteUserPreferences(state) {
+    state.userPreferences.navDrawerPreferences == null;
+    state.userPreferences.themePreferences.themePreference = null;
   }
 };
 

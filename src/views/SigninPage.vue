@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-col :cols="8">
+    <v-col xs="12" md="10" lg="6">
       <v-card>
         <v-card-title>
           <span class="headline accent--text">Welcome Back!</span>
@@ -51,7 +51,6 @@
 </template>
 
 <script>
-/* eslint-disable */
 export default {
   name: "SigninPage",
   data() {
@@ -81,10 +80,7 @@ export default {
     },
     alert() {
       return this.$store.getters.alert;
-    } /* ,
-					loading() {
-						return this.$store.getters.loading;
-					} */
+    }
   },
   watch: {
     user(value) {
@@ -93,7 +89,6 @@ export default {
       }
     },
     alert() {
-      //this.$store.commit("setLoading", false, { root: true });
       this.loading = false;
     }
   },

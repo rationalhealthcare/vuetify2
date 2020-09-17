@@ -23,7 +23,7 @@
 
       <v-app-bar color="primary" dark clipped-left clipped-right app>
         <v-app-bar-nav-icon
-          v-if="this.showNavBarTriggerLeft"
+          v-if="this.showNavBarTriggerLeft && this.user"
           @click.native.stop="drawer = !drawer"
         ></v-app-bar-nav-icon>
 
@@ -39,15 +39,15 @@
           </v-toolbar-title>
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn href="/signup" :disabled="appbar.signupButtonDisabled" icon>
+        <v-btn href="/signup" :disabled="this.user" icon>
           <v-icon>mdi-account-plus</v-icon>
         </v-btn>
-        <v-btn href="/signin" icon>
+        <v-btn href="/signin" :disabled="this.user" icon>
           <v-icon>mdi-account</v-icon>
         </v-btn>
 
         <v-app-bar-nav-icon
-          v-if="this.showNavBarTriggerRight"
+          v-if="this.showNavBarTriggerRight && this.user"
           @click.native.stop="drawer = !drawer"
         ></v-app-bar-nav-icon>
       </v-app-bar>
@@ -78,16 +78,15 @@ export default {
   components: { NavDrawerItems },
   data: function() {
     return {
-      drawer: false,
-      key: false,
-      group: null,
-      appbar: {
-        signupButtonDisabled: false,
+      drawer: false
+      /* xkey: false, */
+      /* xgroup: null, */
+      /*       xappbar: {
         navBarTrigger: {
           right: null,
           show: null
         }
-      }
+      } */
     };
   },
   mounted: function() {
@@ -233,15 +232,6 @@ export default {
         "Themes/activeTheme"
       ].info;
       return null;
-    },
-
-    /* APP BAR */
-    setAppbar() {
-      var isDisabled = false;
-      if (!this.user) {
-        isDisabled = true;
-      }
-      this.appbar.signupButtonDisabled = isDisabled;
     }
   }
 };

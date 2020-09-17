@@ -73,6 +73,18 @@ const state = {
           { root: true }
         );
       }
+    },
+    async signUserOut({ commit }) {
+      firebase
+        .auth()
+        .signOut()
+        .catch(function(error) {
+          commit(
+            "setAlert",
+            { type: "error", message: error.message },
+            { root: true }
+          );
+        });
     }
   };
 export default {

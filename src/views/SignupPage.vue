@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-col :cols="8">
+    <v-col xs="12" md="10" lg="6">
       <v-card>
         <v-card-title>
           <span class="headline accent--text">Please sign up!</span>
