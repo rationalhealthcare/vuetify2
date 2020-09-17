@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import NavDrawerItems from "@/components/NavDrawerItems.vue";
+import NavDrawerItems from "@/components/navDrawerItems.vue";
 export default {
   name: "App",
   components: { NavDrawerItems },
