@@ -3,13 +3,21 @@
     <!-- NavDrawerHeader begins -->
     <v-list-item-group>
       <v-list-item two-line>
-        <v-list-item-avatar>
-          <img src="https://randomuser.me/api/portraits/men/81.jpg" />
-          <span class="white--text headline"></span>
+        <v-list-item-avatar v-if="profile">
+          <div v-if="profile.avatarpath">
+            <v-img :src="profile.avatarpath" />
+            <span class="white--text headline"></span>
+          </div>
+          <div v-else>
+            <v-icon color="accent">
+              {{ profile.initials }}
+            </v-icon>
+          </div>
         </v-list-item-avatar>
+
         <v-list-item-content>
-          <v-list-item-title>AppDash</v-list-item-title>
-          <v-list-item-subtitle>Douglas Green</v-list-item-subtitle>
+          <v-list-item-title>Kērgiva</v-list-item-title>
+          <v-list-item-subtitle>{{ profile.name }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </v-list-item-group>
@@ -34,6 +42,7 @@ export default {
   name: "NavDrawerItems",
   data() {
     return {
+      profile: null,
       drawer: true,
       group: null,
       items: [
@@ -54,11 +63,27 @@ export default {
       ]
     };
   },
+  computed: {
+    profiles: function() {
+      let profiles = this.$store.getters["Profiles/profiles"];
+      if (profiles) {
+        return profiles;
+      } else {
+        return null;
+      }
+    }
+  },
+  watch: {
+    profiles() {
+      this.profile = this.profiles[0];
+    }
+  },
   methods: {
     clickme(clickAction) {
       if (clickAction === "signout") {
         this.$store.dispatch("Auth/signUserOut");
-        this.$router.push({ path: "/signin" });
+        this.$store.commit("Profiles/signOut");
+        this.$router.push({ component: "Home" });
       }
     }
   }

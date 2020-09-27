@@ -5,6 +5,7 @@
 
 "use strict";
 const namespaced = true;
+
 import { ProfileAdapter } from "@/adapters/ProfileAdapter.js";
 
 const state = {
@@ -24,14 +25,20 @@ const getters = {
 const mutations = {
   addProfile(state, payload) {
     state.profiles.push(payload);
+  },
+  signOut(state) {
+    state.profiles = [];
   }
 };
 const actions = {
   async createProfile({ commit }, payload) {
-    const pid = await ProfileAdapter.createProfile(payload);
-    if (pid) {
-      payload["pid"] = pid;
-      commit("addProfile", payload);
+    const profile = await ProfileAdapter.createProfile(payload);
+    if (profile) {
+      console.log(
+        "Profiles.actions.createProfile; Adapter returned : " +
+          JSON.stringify(profile)
+      );
+      commit("addProfile", profile);
       commit("setUserCache", null, { root: true });
     }
   },
@@ -39,6 +46,7 @@ const actions = {
     try {
       const profile = await ProfileAdapter.loadProfile(user.uid);
       if (profile) {
+        console.log("Got from Profile Adapter: " + JSON.stringify(profile));
         commit("addProfile", profile);
       }
     } catch (error) {

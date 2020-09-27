@@ -15,7 +15,7 @@ const state = {
       color: "secondary",
       colorOptions: ["primary", "secondary", "accent"],
       miniVariantWidth: "60",
-      dark: false
+      dark: true
     },
     navDrawerUserSettings: {
       key: "DEFAULT_SLIDE_OUT",

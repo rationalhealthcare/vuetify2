@@ -31,7 +31,7 @@
         <v-btn href="/" icon>
           <v-toolbar-title>
             <v-img
-              src="./assets/logo.png"
+              src="./assets/logo_white.png"
               max-height="45px"
               max-width="45px"
               class="pt-5"
@@ -39,20 +39,10 @@
           </v-toolbar-title>
         </v-btn>
         <v-spacer></v-spacer>
-        <v-btn
-          @click="clicked('signup')"
-          xhref="/signup"
-          :disabled="this.user"
-          icon
-        >
+        <v-btn @click="clicked('signup')" :disabled="userExists" icon>
           <v-icon>mdi-account-plus</v-icon>
         </v-btn>
-        <v-btn
-          @click="clicked('signin')"
-          xhref="/signin"
-          :disabled="this.user"
-          icon
-        >
+        <v-btn @click="clicked('signin')" :disabled="userExists" icon>
           <v-icon>mdi-account</v-icon>
         </v-btn>
 
@@ -73,14 +63,26 @@
 
       <v-container>
         <v-footer color="primary" dark app>
-          (c) AppDash 2020
+          (c) rationalhealthcare.org 2019 - 2020
           <!-- -->
         </v-footer>
+
+        <!-- BEGIN ALERT -->
+        <v-layout row v-if="alert">
+          <v-flex xs12 sm6 offset-sm3>
+            <app-alert
+              :type="alert.type"
+              @dismissed="onDismissed"
+              :text="alert.message"
+            ></app-alert>
+          </v-flex>
+        </v-layout>
+        <!-- END ALERT -->
       </v-container>
     </v-app>
   </div>
 </template>
-
+/* ///////////////////////////////////////////////////////////////////////// */
 <script>
 import NavDrawerItems from "@/components/NavDrawerItems.vue";
 export default {
@@ -88,7 +90,8 @@ export default {
   components: { NavDrawerItems },
   data: function() {
     return {
-      drawer: false
+      drawer: false,
+      userExists: null
     };
   },
   mounted: function() {
@@ -103,6 +106,7 @@ export default {
     },
     user() {
       if (this.user) {
+        this.userExists = true;
         this.loadProfile();
         this.loadNavDrawerUserPreferences();
         this.loadThemeUserPreferences();
@@ -128,7 +132,7 @@ export default {
       return this.$store.getters["AppState/error"];
     },
     profiles: function() {
-      return this.$store.getters("Profiles/profiles");
+      return this.$store.getters["Profiles/profiles"];
     },
     user: function() {
       return this.$store.getters["Auth/user"];
@@ -161,6 +165,9 @@ export default {
           return null;
       }
     },
+    alert() {
+      return this.$store.getters.alert;
+    },
     /* THEME */
     activeTheme() {
       return this.$store.getters["Themes/activeTheme"];
@@ -185,6 +192,9 @@ export default {
   },
 
   methods: {
+    onDismissed() {
+      this.$store.dispatch("clearAlert");
+    },
     clicked(value) {
       if (value === "signin") {
         this.$router.push({ path: "/signin" });
