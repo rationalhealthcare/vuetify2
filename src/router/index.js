@@ -4,6 +4,7 @@ import Home from "@/views/Home.vue";
 import SignupPage from "@/views/SignupPage.vue";
 import SigninPage from "@/views/SigninPage.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
+import NewProfile from "@/views/NewProfile.vue";
 //import Authguard from "./authguard.js";
 
 Vue.use(VueRouter);
@@ -35,11 +36,16 @@ const routes = [
   },
   {
     path: "/preferences",
-    name: "PreferencesPage",
+    name: "preferencesPage",
     component: () =>
       import(
         /* webpackChunkName: "preferences" */ "../views/PreferencesPage.vue"
       )
+  },
+  {
+    path: "/newprofile",
+    name: "newProfile",
+    component: NewProfile
   },
   {
     path: "*",

@@ -11,27 +11,52 @@ const AUTH_HEADER = {
     "Content-Type": "application/json"
   }
 };
-//const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
-const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
+const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
+//const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
 
 export const ProfileAdapter = {
-  createProfile: async function(payload) {
-    console.log("Creating profile for user : " + JSON.stringify(payload));
-    let res = await axios.post(BASE_URL, payload, AUTH_HEADER);
+  /*  new profile for _new_ user */
+  createNewUserProfile: async function(payload) {
+    //  payload structure: {uid, name, email}
+    const profile = {
+      newuser: true,
+      familyId: null,
+      profile: payload
+    };
+    console.log("Creating profile for user : " + JSON.stringify(profile));
+    let res = await axios.post(BASE_URL + "/", profile, AUTH_HEADER);
+    if (res) {
+      console.log("Profile adapter got: " + JSON.stringify(res.data));
+      return res;
+    }
+  },
+
+  /* new profile, _not_ for a new user */
+  createNewProfile: async function(payload) {
+    // payload inbound structure: {familyid, profile: {}}
+    payload["newuser"] = false;
+    console.log("ProfileAdapter.createNewProfile", JSON.stringify(payload));
+    let res = await axios.post(BASE_URL + "/", payload, AUTH_HEADER);
     if (res) {
       console.log(
-        "Profile adapter is about to return: " + JSON.stringify(res.data[0])
+        "createNewProfile: Profile adapter got: " + JSON.stringify(res.data[0])
       );
       return res.data[0];
     }
   },
 
-  loadProfile: async function(uid) {
+  loadProfiles: async function(uid) {
     console.log("Fetching profile for uid: " + uid);
     let uri = BASE_URL + "uid/" + uid;
     let res = await axios.get(uri, AUTH_HEADER);
     if (res) {
+      console.log(
+        "ProfileAdapter.loadProfiles got from API:",
+        JSON.stringify(res)
+      );
       return res.data;
+    } else {
+      throw "Profiles API returned an empty profile.";
     }
   }
 };

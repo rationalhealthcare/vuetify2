@@ -17,7 +17,9 @@
 
         <v-list-item-content>
           <v-list-item-title>Kērgiva</v-list-item-title>
-          <v-list-item-subtitle>{{ profile.name }}</v-list-item-subtitle>
+          <v-list-item-subtitle v-if="profile">{{
+            profile.name
+          }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </v-list-item-group>
@@ -46,7 +48,12 @@ export default {
       drawer: true,
       group: null,
       items: [
-        { text: "Item 1", icon: "mdi-flag" },
+        {
+          text: "New profile",
+          icon: "mdi-flag",
+          to: "/newprofile",
+          divider: true
+        },
         { text: "Item 2", icon: "mdi-flag" },
         { text: "Item 3", icon: "mdi-flag" },
         {
@@ -83,7 +90,7 @@ export default {
       if (clickAction === "signout") {
         this.$store.dispatch("Auth/signUserOut");
         this.$store.commit("Profiles/signOut");
-        this.$router.push({ component: "Home" });
+        //this.$router.push("/");
       }
     }
   }

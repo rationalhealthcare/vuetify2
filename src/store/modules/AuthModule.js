@@ -56,6 +56,7 @@ const state = {
     },
 
     async getSignedInUser({ commit }) {
+      console.log();
       try {
         await firebase.auth().onAuthStateChanged(function(user) {
           if (user) {

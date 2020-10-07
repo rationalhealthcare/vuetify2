@@ -9,45 +9,76 @@ const namespaced = true;
 import { ProfileAdapter } from "@/adapters/ProfileAdapter.js";
 
 const state = {
+  families: [],
   profiles: []
 };
 
 const getters = {
   profiles: state => state.profiles,
-  getProfileByUid: function(state, uid) {
-    for (let profile of state.profiles) {
-      if (profile.uid === uid) {
-        return profile;
-      }
-    }
-  }
+  families: state => state.families
 };
+
 const mutations = {
   addProfile(state, payload) {
     state.profiles.push(payload);
+  },
+  setProfiles(state, payload) {
+    state.profiles = payload;
+  },
+  setFamilies(state, payload) {
+    state.families = payload;
   },
   signOut(state) {
     state.profiles = [];
   }
 };
+
 const actions = {
-  async createProfile({ commit }, payload) {
-    const profile = await ProfileAdapter.createProfile(payload);
-    if (profile) {
+  /*  new profile for _new_ user */
+  async createNewUserProfile({ commit }, payload) {
+    const response = await ProfileAdapter.createNewUserProfile(payload);
+    if (response) {
       console.log(
-        "Profiles.actions.createProfile; Adapter returned : " +
-          JSON.stringify(profile)
+        "Profiles.actions.createNewUserProfile; Adapter returned : " +
+          JSON.stringify(response)
       );
-      commit("addProfile", profile);
+      commit("setProfiles", response.data[0]);
+      commit("setFamilies", response.data[1]);
       commit("setUserCache", null, { root: true });
     }
   },
-  async loadProfile({ commit }, user) {
+
+  /* new profile, _not_ for a new user */
+  async createNewProfile({ commit }, payload) {
     try {
-      const profile = await ProfileAdapter.loadProfile(user.uid);
-      if (profile) {
-        console.log("Got from Profile Adapter: " + JSON.stringify(profile));
-        commit("addProfile", profile);
+      const response = await ProfileAdapter.createNewProfile(payload);
+      if (response) {
+        commit("addProfile", response);
+      }
+    } catch (error) {
+      commit(
+        "setAlert",
+        { type: "error", message: error.message },
+        { root: true }
+      );
+    }
+  },
+
+  async loadProfiles({ commit }, user) {
+    try {
+      const response = await ProfileAdapter.loadProfiles(user.uid);
+      if (response) {
+        if (response) {
+          console.log("Got from Profile Adapter: " + JSON.stringify(response));
+          if (response.profiles.length > 0) {
+            commit("setProfiles", response.profiles);
+          }
+          if (response.profiles.length > 0) {
+            commit("setFamilies", response.families);
+          }
+        }
+      } else {
+        throw "Profiles/loadProfiles: Adapter returned a NULL data set.";
       }
     } catch (error) {
       commit(

@@ -63,7 +63,9 @@
 
       <v-container>
         <v-footer color="primary" dark app>
-          (c) rationalhealthcare.org 2019 - 2020
+          <small>
+            (c) rationalhealthcare.org 2019 - 2020
+          </small>
           <!-- -->
         </v-footer>
 
@@ -101,13 +103,13 @@ export default {
   watch: {
     userCache() {
       if (this.userCache) {
-        this.createProfile();
+        this.createNewUserProfile();
       }
     },
     user() {
       if (this.user) {
         this.userExists = true;
-        this.loadProfile();
+        this.loadProfiles();
         this.loadNavDrawerUserPreferences();
         this.loadThemeUserPreferences();
       }
@@ -132,7 +134,12 @@ export default {
       return this.$store.getters["AppState/error"];
     },
     profiles: function() {
-      return this.$store.getters["Profiles/profiles"];
+      const profiles = this.$store.getters["Profiles/profiles"];
+      if (profiles.length > 0) {
+        return profiles;
+      } else {
+        return null;
+      }
     },
     user: function() {
       return this.$store.getters["Auth/user"];
@@ -207,11 +214,13 @@ export default {
     getSignedInUser() {
       this.$store.dispatch("Auth/getSignedInUser");
     },
-    createProfile() {
-      this.$store.dispatch("Profiles/createProfile", this.userCache);
+    createNewUserProfile() {
+      this.$store.dispatch("Profiles/createNewUserProfile", this.userCache);
     },
-    loadProfile() {
-      this.$store.dispatch("Profiles/loadProfile", this.user);
+    loadProfiles() {
+      if (!this.profiles) {
+        this.$store.dispatch("Profiles/loadProfiles", this.user);
+      }
     },
 
     /* NAV DRAWER */
