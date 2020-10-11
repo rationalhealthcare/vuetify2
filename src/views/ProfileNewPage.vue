@@ -79,7 +79,7 @@
 
 <script>
 export default {
-  name: "NewProfile",
+  name: "ProfileNewPage",
   data() {
     return {
       familyid: null,

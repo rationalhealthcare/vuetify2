@@ -30,6 +30,13 @@ const mutations = {
   },
   signOut(state) {
     state.profiles = [];
+  },
+  updateProfile(state, payload) {
+    for (let i = 0; i < state.profiles.length; i++) {
+      if (state.profiles[i].id === payload.id) {
+        state.profiles[i] = Object.assign({}, payload);
+      }
+    }
   }
 };
 
@@ -79,6 +86,25 @@ const actions = {
         }
       } else {
         throw "Profiles/loadProfiles: Adapter returned a NULL data set.";
+      }
+    } catch (error) {
+      commit(
+        "setAlert",
+        { type: "error", message: error.message },
+        { root: true }
+      );
+    }
+  },
+
+  async updateProfile({ commit }, profile) {
+    try {
+      let res = await ProfileAdapter.updateProfile(profile);
+      if (res) {
+        console.log(
+          "Profiles.updateProfile: Number of rows affected: ",
+          res.data
+        );
+        commit("updateProfile", profile);
       }
     } catch (error) {
       commit(

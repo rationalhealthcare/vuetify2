@@ -48,13 +48,14 @@ export default {
       drawer: true,
       group: null,
       items: [
+        { text: "My Family", icon: "mdi-account-group", to: "/profiles" },
         {
           text: "New profile",
           icon: "mdi-flag",
           to: "/newprofile",
           divider: true
         },
-        { text: "Item 2", icon: "mdi-flag" },
+
         { text: "Item 3", icon: "mdi-flag" },
         {
           text: "Preferences",

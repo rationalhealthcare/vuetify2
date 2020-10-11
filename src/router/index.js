@@ -5,6 +5,8 @@ import SignupPage from "@/views/SignupPage.vue";
 import SigninPage from "@/views/SigninPage.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
 import NewProfile from "@/views/NewProfile.vue";
+import Profiles from "@/views/Profiles.vue";
+import ProfileEditPage from "@/views/ProfileEditPage.vue";
 //import Authguard from "./authguard.js";
 
 Vue.use(VueRouter);
@@ -46,6 +48,16 @@ const routes = [
     path: "/newprofile",
     name: "newProfile",
     component: NewProfile
+  },
+  {
+    path: "/profiles",
+    name: "Profiles",
+    component: Profiles
+  },
+  {
+    path: "/editprofile",
+    name: "ProfileEditPage",
+    component: ProfileEditPage
   },
   {
     path: "*",

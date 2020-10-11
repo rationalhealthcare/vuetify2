@@ -4,7 +4,7 @@
       <v-card>
         <v-card-title>
           <p class="headline accent--text mb-0">
-            New Family Member
+            Edit Family Profile
           </p>
         </v-card-title>
         <v-card-text id="newForm">
@@ -79,17 +79,12 @@
 
 <script>
 export default {
-  name: "NewProfile",
+  name: "ProfileEditPage",
   data() {
     return {
       familyid: null,
-      profile: {
-        name: null,
-        alias: null,
-        initials: null,
-        avatarPath: null,
-        email: null
-      },
+      profile: {},
+      undoProfile: {},
       validationRules: {
         name: [
           v =>
@@ -111,9 +106,7 @@ export default {
 
   mounted() {
     this.setFamilyId();
-    if (this.profiles) {
-      this.profilesLength = this.profiles.length;
-    }
+    this.setEditingProfile();
   },
   computed: {
     user() {
@@ -133,34 +126,35 @@ export default {
     },
     alert() {
       return this.$store.getters.alert;
+    },
+    editingProfileId() {
+      return this.$store.getters["AppState/editingProfileId"];
     }
   },
-  watch: {
-    profiles() {
-      if (this.profiles.length > this.profilesLength) {
-        this.profilesLength = this.profiles.length;
-      }
-    }
-  },
+  watch: {},
   methods: {
     onApply() {
-      const payload = { familyid: this.familyid, profile: this.profile };
-      this.$store.dispatch("Profiles/createNewProfile", payload);
+      //  has x (profile current state) change in relation
+      //  to y (profile start state)?
+      if (this.isChanged(this.profile, this.undoProfile)) {
+        this.$store.dispatch("Profiles/updateProfile", this.profile);
+        this.$store.commit("AppState/setEditingProfileId", null);
+      }
     },
     onReset() {
-      this.$refs.form.reset();
+      this.resetEditingProfile();
     },
-    onDismissed() {
-      // What to do when an alert is dismissed.
-    },
-    setProfile: function() {
-      const profiles = this.profiles;
-      const uid = this.user.uid;
-      for (let i = 0; i < profiles.length; i++) {
-        if (profiles[i].uid == uid) {
-          this.profile = profiles[i];
+    setEditingProfile() {
+      for (let i = 0; i < this.profiles.length; i++) {
+        if (this.profiles[i].id === this.editingProfileId) {
+          this.profile = this.profiles[i];
+          this.undoProfile = Object.assign({}, this.profiles[i]);
+          break;
         }
       }
+    },
+    resetEditingProfile() {
+      this.profile = Object.assign({}, this.undoProfile);
     },
     setFamilyId: function() {
       this.familyid = this.families[0].id;
@@ -168,6 +162,19 @@ export default {
     validateName(name) {
       const re = /^([a-zA-Z]{2,}\\s[a-zA-Z]{1,}'?-?[a-zA-Z]{2,}\\s?([a-zA-Z]{0,})?)/;
       return !re.test(name);
+    },
+    //has x changed in relation to y?
+    isChanged(x, y) {
+      for (let prop in x) {
+        if (x[prop] === "") {
+          x[prop] = null;
+        }
+        console.log("x[prop]", x[prop], "y[prop]", y[prop]);
+        if (x[prop] != y[prop]) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 };

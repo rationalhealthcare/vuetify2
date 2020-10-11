@@ -58,5 +58,19 @@ export const ProfileAdapter = {
     } else {
       throw "Profiles API returned an empty profile.";
     }
+  },
+
+  updateProfile: async function(profile) {
+    let uri = BASE_URL + "id/" + profile.id;
+    let res = await axios.put(uri, profile, AUTH_HEADER);
+    if (res) {
+      console.log(
+        "ProfileAdapter.updateProfile got response: ",
+        JSON.stringify(res)
+      );
+      return res;
+    } else {
+      throw "ProfileAdapter.updateProfile No response from API.";
+    }
   }
 };

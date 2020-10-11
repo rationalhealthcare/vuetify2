@@ -2,6 +2,9 @@
 const namespaced = true;
 
 const state = {
+  profile: {
+    editingProfileId: null
+  },
   appBar: {
     navBarTrigger: {
       right: null,
@@ -85,7 +88,8 @@ const getters = {
   navDrawer: state => state.navDrawer.navDrawerUserSettings.drawer,
   navDrawerStaticSettings: state => state.navDrawer.navDrawerStaticSettings,
   navDrawerUserSettings: state => state.navDrawer.navDrawerUserSettings,
-  navDrawerOptions: state => state.navDrawer.navDrawerOptions
+  navDrawerOptions: state => state.navDrawer.navDrawerOptions,
+  editingProfileId: state => state.profile.editingProfileId
 };
 const mutations = {
   setNavDrawer(state, value) {
@@ -99,6 +103,9 @@ const mutations = {
   },
   setNavDrawerUserSettings(state, value) {
     state.navDrawer.navDrawerUserSettings = value;
+  },
+  setEditingProfileId(state, value) {
+    state.profile.editingProfileId = value;
   }
 };
 const actions = {
