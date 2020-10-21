@@ -12,10 +12,12 @@ const AUTH_HEADER = {
   }
 };
 
-const util = require('util');
-let BASE_URL = util.format('%s/api/v1/profiles/', process.env.API_ENDPOINT)
+const util = require("util");
+const BASE_URL = util.format("%s/api/v1/profiles/", process.env.API_ENDPOINT);
 //const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
 //const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
+
+// console.log(util.format("API Endpoint: %s", BASE_URL));
 
 export const ProfileAdapter = {
   /*  new profile for _new_ user */
