@@ -11,7 +11,10 @@ const AUTH_HEADER = {
     "Content-Type": "application/json"
   }
 };
-const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
+
+const util = require('util');
+let BASE_URL = util.format('%s/api/v1/profiles/', process.env.API_ENDPOINT)
+//const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
 //const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
 
 export const ProfileAdapter = {
