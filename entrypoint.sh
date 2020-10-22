@@ -1,6 +1,8 @@
 #!/bin/bash
 
+echo "" > /usr/share/nginx/html/static/config.js
 
-# env | grep -ir VUE_APP_
-sed -i 's/old-text/new-text/g' input.txt
-nginx -g daemon off
+for value in $(env | grep -ir VUE_APP_)
+do
+    echo "process.env["\"$(echo $value | cut -d '=' -f 1)\""] = \"$(echo $value | cut -d '=' -f 2-)\";" >> /usr/share/nginx/html/static/config.js
+done
