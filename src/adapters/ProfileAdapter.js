@@ -12,7 +12,12 @@ const AUTH_HEADER = {
   }
 };
 
-const BASE_URL = VUE_APP_API_ENDPOINT || "127.0.0.1:5000";
+if ( typeof VUE_APP_API_ENDPOINT !== 'undefined') {
+  const BASE_URL = VUE_APP_API_ENDPOINT
+} else {
+  const BASE_URL = "127.0.0.1:5000";
+}
+
 //const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
 //const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
 
