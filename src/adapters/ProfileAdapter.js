@@ -12,6 +12,9 @@ const AUTH_HEADER = {
   }
 };
 
+
+// NOTE FOR DAD: When you want to change the api BASE_URL just execute this in your terminal:
+// export VUE_APP_API_ENDPOINT="http://192.168.0.7:5000/api/v1/profiles/"
 const util = require("util");
 const BASE_URL = util.format(
   "%s/api/v1/profiles/",
