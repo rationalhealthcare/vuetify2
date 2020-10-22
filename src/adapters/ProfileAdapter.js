@@ -12,19 +12,19 @@ const AUTH_HEADER = {
   }
 };
 
-
 // NOTE FOR DAD: When you want to change the api BASE_URL just execute this in your terminal:
 // export VUE_APP_API_ENDPOINT="http://192.168.0.7:5000/api/v1/profiles/"
+const util = require("util");
+const BASE_URL = util.format(
+  "%s/api/v1/profiles/",
+  process.env.VUE_APP_API_ENDPOINT
+);
 //const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
 //const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
 
 export const ProfileAdapter = {
   /*  new profile for _new_ user */
   createNewUserProfile: async function(payload) {
-
-    const util = require("util");
-    var BASE_URL = util.format("%s/api/v1/profiles/",process.env.VUE_APP_API_ENDPOINT);
-
     //  payload structure: {uid, name, email}
     const profile = {
       newuser: true,
@@ -41,10 +41,6 @@ export const ProfileAdapter = {
 
   /* new profile, _not_ for a new user */
   createNewProfile: async function(payload) {
-
-    const util = require("util");
-    var BASE_URL = util.format("%s/api/v1/profiles/",process.env.VUE_APP_API_ENDPOINT);
-
     // payload inbound structure: {familyid, profile: {}}
     payload["newuser"] = false;
     console.log("ProfileAdapter.createNewProfile", JSON.stringify(payload));
@@ -58,10 +54,6 @@ export const ProfileAdapter = {
   },
 
   loadProfiles: async function(uid) {
-
-    const util = require("util");
-    var BASE_URL = util.format("%s/api/v1/profiles/",process.env.VUE_APP_API_ENDPOINT);
-
     console.log("Fetching profile for uid: " + uid);
     let uri = BASE_URL + "uid/" + uid;
     let res = await axios.get(uri, AUTH_HEADER);
@@ -77,10 +69,6 @@ export const ProfileAdapter = {
   },
 
   updateProfile: async function(profile) {
-
-    const util = require("util");
-    var BASE_URL = util.format("%s/api/v1/profiles/",process.env.VUE_APP_API_ENDPOINT);
-
     let uri = BASE_URL + "id/" + profile.id;
     let res = await axios.put(uri, profile, AUTH_HEADER);
     if (res) {
