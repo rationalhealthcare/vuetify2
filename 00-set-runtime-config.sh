@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 CONFIG_JS_PATH="/usr/share/nginx/html/config.js"
 
@@ -9,6 +9,4 @@ do
     echo "config.set("\"$(echo $value | cut -d '=' -f 1)\"", \"$(echo $value | cut -d '=' -f 2-)\");" >> $CONFIG_JS_PATH
 done
 
-
-
-#config.set("VUE_APP_API_ENDPOINT", "https://foo-bar.com");
+exit 0
