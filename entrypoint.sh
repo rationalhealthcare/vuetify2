@@ -1,8 +1,14 @@
 #!/bin/bash
 
-echo "" > /usr/share/nginx/html/js/config.js
+CONFIG_JS_PATH="/usr/share/nginx/html/config.js"
+
+echo "let config = new Map();" > $CONFIG_JS_PATH
 
 for value in $(env | grep -ir VUE_APP_)
 do
-    echo "process.env["\"$(echo $value | cut -d '=' -f 1)\""] = \"$(echo $value | cut -d '=' -f 2-)\";" >> /usr/share/nginx/html/static/config.js
+    echo "config.set("\"$(echo $value | cut -d '=' -f 1)\"", \"$(echo $value | cut -d '=' -f 2-)\");" >> $CONFIG_JS_PATH
 done
+
+
+
+#config.set("VUE_APP_API_ENDPOINT", "https://foo-bar.com");
