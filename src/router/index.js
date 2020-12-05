@@ -4,9 +4,13 @@ import Home from "@/views/Home.vue";
 import SignupPage from "@/views/SignupPage.vue";
 import SigninPage from "@/views/SigninPage.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
-import NewProfile from "@/views/NewProfile.vue";
 import Profiles from "@/views/Profiles.vue";
-import ProfileEditPage from "@/views/ProfileEditPage.vue";
+import ConsultantSearchPage from "@/views/ConsultantSearchPage.vue";
+import ConsultantSearchResultsPage from "@/views/ConsultantSearchResultsPage.vue";
+
+//import AppointmentNewPage from "@/views/AppointmentNewPage.vue"
+//import NewProfile from "@/views/ProfileNewPage.vue";
+//import ProfileEditPage from "@/views/ProfileEditPage.vue";
 //import Authguard from "./authguard.js";
 
 Vue.use(VueRouter);
@@ -47,7 +51,8 @@ const routes = [
   {
     path: "/newprofile",
     name: "newProfile",
-    component: NewProfile
+    component: () =>
+      import(/* webpackChunkName: "newprofile" */ "../views/NewProfile.vue")
   },
   {
     path: "/profiles",
@@ -57,8 +62,39 @@ const routes = [
   {
     path: "/editprofile",
     name: "ProfileEditPage",
-    component: ProfileEditPage
+    component: () =>
+      import(
+        /* webpackChunkName: "editprofile" */ "../views/ProfileEditPage.vue"
+      )
   },
+  {
+    path: "/newappointment",
+    name: "AppointmentNewPage",
+    component: () =>
+      import(
+        /* webpackChunkName: "newappointment" */ "../views/AppointmentNewPage.vue"
+      )
+  },
+
+  {
+    path: "/consultant",
+    name: "ConsultantSearchPage",
+    component: ConsultantSearchPage
+  },
+  {
+    path: "/consultantsearchresults",
+    name: "ConsultantSearchResultsPage",
+    component: ConsultantSearchResultsPage
+  },
+  {
+    path: "/family/edit",
+    name: "FamilyEditPage",
+    component: () =>
+      import(
+        /* webpackChunkName: "familyeditpage" */ "../views/FamilyEditPage.vue"
+      )
+  },
+
   {
     path: "*",
     component: NotFoundPage

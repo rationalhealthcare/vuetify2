@@ -1,8 +1,12 @@
-/* 
-  ProfileAdapter 
-  Acts as an adapter between the ProfilesModule and the Profile REST service.
-  Like an API. 
-*/
+/**
+ * /*
+ *   ProfileAdapter
+ *   Acts as an adapter between the ProfilesModule and the Profile REST service.
+ *   Like an API.
+ *
+ * @format
+ */
+"use strict";
 import axios from "axios";
 const AUTH_HEADER = {
   headers: {
@@ -71,6 +75,50 @@ export const ProfileAdapter = {
       return res;
     } else {
       throw "ProfileAdapter.updateProfile No response from API.";
+    }
+  },
+
+  loadConsultants: async function(fid) {
+    let uri = BASE_URL + "consultants/fid/" + fid;
+    let res = await axios.get(uri, AUTH_HEADER);
+    console.log("ProfileAdapter.loadConsultants", res);
+    return res.data.response;
+  },
+
+  persistConsultant: async function(payload, cb) {
+    let endpoint = BASE_URL + "consultant/";
+    console.log("ProfileAdapter.persistConsultant", endpoint);
+    let res = await axios.post(endpoint, payload, AUTH_HEADER);
+    if (res) {
+      console.log(
+        "ProfileAdapter.persistConsultant; service returned:" +
+          JSON.stringify(res.data)
+      );
+      cb = res.data;
+      return cb;
+    }
+  },
+
+  deleteConsultant: async function(payload, cb) {
+    let endpoint = BASE_URL + "consultant/";
+
+    // Note order of params
+    // TODO: fix the bearer-token-in-git issue
+    let params = {
+      data: { npi: payload.npi, fid: payload.fid },
+      headers: {
+        Authorization:
+          "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOnt9LCJpYXQiOjE1OTQ1NzA2MzR9.lLuy9YqLPKjioo-RhlwzyZ0J01k4ywWtxbmIJP44AQw"
+      }
+    };
+    console.log("ProfileAdapter.deleteConsultant", JSON.stringify(params));
+    let res = await axios.delete(endpoint, params);
+    if (res) {
+      console.log(
+        "deleteConsultant: Profile adapter got: " + JSON.stringify(res.data)
+      );
+      cb = res.data;
+      return cb;
     }
   }
 };

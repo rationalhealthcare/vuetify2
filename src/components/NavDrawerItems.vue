@@ -50,13 +50,10 @@ export default {
       items: [
         { text: "My Family", icon: "mdi-account-group", to: "/profiles" },
         {
-          text: "New profile",
-          icon: "mdi-flag",
-          to: "/newprofile",
-          divider: true
+          text: "Appointments",
+          icon: "mdi-calendar-multiple",
+          to: "/newappointment"
         },
-
-        { text: "Item 3", icon: "mdi-flag" },
         {
           text: "Preferences",
           icon: "mdi-account-settings",

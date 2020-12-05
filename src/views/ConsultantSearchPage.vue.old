@@ -1,0 +1,241 @@
+<!-- @format -->
+
+<style scoped>
+.router-link-active {
+  background-color: blue;
+}
+</style>
+<script>
+export default {
+  name: "ConsultantSearchPage",
+  data: () => {
+    return {
+      dialog: false,
+      selected: 1,
+      selectedAddress: null,
+      loading: false,
+      search: {
+        type: "practitioner",
+        facilityname: null,
+        firstname: null,
+        lastname: null,
+        city: null,
+        state: null,
+        postalcode: null
+      },
+      /*       consultant: {
+        consultantName: null,
+        organizationName: null,
+        address: {
+          address1: null,
+          address2: null,
+          city: null,
+          statecode: null,
+          postalcode: null,
+          country: null
+        }
+      }, */
+      items: [{
+        addresses: [
+          {
+            active: false,
+            address1: "",
+            address2: "",
+            city: "",
+            countrycode: "",
+            npi: "",
+            phone: "",
+            postalcode: "",
+            purpose: "",
+            state: ""
+          }
+        ],
+        active: false,
+        credential: "",
+        entitytypecode: "",
+        firstname: "",
+        lastname: "",
+        npi: "",
+        organizationname: "",
+        suffix: ""
+      }]
+    };
+  },
+  computed: {
+    searchNameLabel() {
+      if (this.search.type === "practitioner") {
+        return "Doctor's or practitioner's name";
+      } else {
+        return "Name of your practitioner's facility";
+      }
+    }
+  },
+  methods: {
+    onReset() {
+      this.$refs.consultantSearchForm.reset();
+    },
+    async onSearch() {
+      this.loading = true;
+      let results = await this.$store.dispatch(
+        "Consultant/search",
+        this.search
+      );
+      this.items = results;
+      this.loading = false;
+      this.dialog = true;
+    },
+    consultantClicked(npi) {
+      alert(npi);
+    },
+    checkboxClick(item) {
+      this.selectedAddress = item;
+      alert(item);
+    }
+  }
+};
+</script>
+
+/******************************************************************************
+******************************************************************************/
+
+<template>
+  <v-row justify="center">
+    <v-col xs="12" md="10" lg="8">
+      <v-card>
+        <v-card-title>
+          <p class="headline accent--text mb-0">
+            Consultant Search
+          </p>
+        </v-card-title>
+        <v-card-text id="">
+          <v-radio-group v-model="search.type" row>
+            <v-radio
+              @click.stop
+              label="Practitioner"
+              value="practitioner"
+            ></v-radio>
+            <v-radio @click.stop label="Facility" value="facility"></v-radio>
+          </v-radio-group>
+          <v-form id="" ref="consultantSearchForm">
+            <!-- fields here... -->
+            <v-card-subtitle>
+              Give as much information as you can. You can use partial words.<br />
+              The search will return only 10 results at a time. If the
+              practitioner you are looking for is not in the result set, please
+              refine your search terms and try again.
+            </v-card-subtitle>
+
+            <div v-if="search.type === 'practitioner'">
+              <v-text-field
+                id="text1"
+                label="Doctor's or practitioner's first name"
+                v-model="search.firstname"
+              ></v-text-field>
+              <v-text-field
+                id="text2"
+                label="Last name"
+                v-model="search.lastname"
+              ></v-text-field>
+            </div>
+            <div v-else>
+              <v-text-field
+                id="text3"
+                label="Name of the facility you will visit"
+                v-model="search.facilityname"
+              >
+              </v-text-field>
+            </div>
+
+            <v-text-field
+              id="text2"
+              label="City"
+              v-model="search.city"
+            ></v-text-field>
+            <v-text-field
+              id="text3"
+              label="State Code"
+              v-model="search.statecode"
+            ></v-text-field>
+            <v-text-field
+              id="text4"
+              label="Postal Code"
+              v-model="search.postalcode"
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="onSearch" :loading="loading" color="accent">
+            Search
+          </v-btn>
+          <v-btn @click="onReset">Reset</v-btn>
+        </v-card-actions>
+      </v-card>
+
+      <!-- DIALOG STARTS -->
+
+      <template>
+        <v-dialog v-model="dialog">
+          <v-card class="mx-auto" max-width="700">
+            <v-toolbar color="secondary" dark>
+              <v-toolbar-title>Consultant Search</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon>
+                <v-icon>mdi-checkbox-marked-circle</v-icon>
+              </v-btn>
+            </v-toolbar>
+
+            <v-list shaped v-model="selected">
+              <v-list-group
+                v-for="item in items"
+                :key="item.npi"
+                prepend-icon="mdi-certificate"
+                no-action
+              >
+                <template v-slot:activator>
+                  <v-list-item
+                    xactive-class="router-link-active"
+                    @click="consultantClicked(item.npi)"
+                  >
+                    <v-list-item-title
+                      v-if="item.entitytypecode === '1'"
+                      v-text="item.firstname + ' ' + item.lastname"
+                    ></v-list-item-title>
+                    <v-list-item-title
+                      v-if="item.entitytypecode === '2'"
+                      v-text="item.organizationname"
+                    ></v-list-item-title>
+                  </v-list-item>
+                </template>
+
+                <!-- ADDRESS LIST ITEMS -->
+
+                <v-list-item dense v-for="(addr, i) in item.addresses" :key="i">
+                  <v-list-item-icon>
+                    <v-icon>mdi-map-marker</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-subtitle>
+                      {{ addr.address1 + " " + addr.address2 }}
+                      <br />
+                      {{ addr.city + " " + addr.state + " " + addr.postalcode }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <!-- <v-checkbox :xinput-value="active"></v-checkbox> -->
+                    <v-checkbox @click="checkboxClick(item)"></v-checkbox>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-group>
+            </v-list>
+          </v-card>
+        </v-dialog>
+
+        <!--       </v-row> -->
+      </template>
+
+      <!-- DIALOG ENDS -->
+    </v-col>
+  </v-row>
+</template>

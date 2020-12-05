@@ -5,6 +5,7 @@ import AppStateModule from "@/store/modules/AppStateModule.js";
 import ProfilesModule from "@/store/modules/ProfilesModule.js";
 import ThemeModule from "@/store/modules/ThemeModule.js";
 import UserPreferencesModule from "@/store/modules/UserPreferencesModule.js";
+import ConsultantModule from "@/store/modules/ConsultantModule.js";
 
 Vue.use(Vuex);
 
@@ -14,7 +15,8 @@ export default new Vuex.Store({
     AppState: AppStateModule,
     Profiles: ProfilesModule,
     Themes: ThemeModule,
-    UserPrefs: UserPreferencesModule
+    UserPrefs: UserPreferencesModule,
+    Consultant: ConsultantModule
   },
 
   state: {

@@ -3,20 +3,38 @@
     <v-col xs="12" md="10" lg="8">
       <v-card>
         <!--  -->
-        <v-fab-transition>
-          <v-btn
-            @click="clickedNew"
-            v-show="!hidden"
-            color="primary"
-            dark
-            absolute
-            xtop
-            right
-            fab
-          >
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </v-fab-transition>
+        <v-card-actions>
+          <v-fab-transition>
+            <v-btn
+              @click="clickedEdit"
+              v-show="!hidden"
+              color="accent"
+              dark
+              xabsolute
+              xtop
+              xright
+              fab
+            >
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+          </v-fab-transition>
+          <!--  -->
+          <!--  -->
+          <v-fab-transition>
+            <v-btn
+              @click="clickedNew"
+              v-show="!hidden"
+              color="accent"
+              dark
+              absolute
+              xtop
+              right
+              fab
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </v-card-actions>
         <!--  -->
 
         <v-card-title>
@@ -75,6 +93,9 @@ export default {
   methods: {
     clickedNew() {
       this.$router.push("/newprofile");
+    },
+    clickedEdit() {
+      this.$router.push("/family/edit");
     }
   }
 };

@@ -6,8 +6,12 @@
           {{ family.name }}
         </div>
         <v-list-item-title class="headline accent--text mb-1">
-          <!-- {{ profile.name }} -->
-          {{ fname }}
+          <div v-if="profile.alias">
+            {{ profile.alias }}
+          </div>
+          <div v-else>
+            {{ fname }}
+          </div>
         </v-list-item-title>
         <v-list-item-subtitle> </v-list-item-subtitle>
       </v-list-item-content>
@@ -25,6 +29,9 @@
     <v-card-actions>
       <v-btn xoutlined xrounded text @click="clickedEdit">
         Edit
+      </v-btn>
+      <v-btn xoutlined xrounded text @click="clickedAppointment">
+        Appointment
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -45,6 +52,10 @@ export default {
     clickedEdit() {
       this.$store.commit("AppState/setEditingProfileId", this.profile.id);
       this.$router.push("/editprofile");
+    },
+    clickedAppointment() {
+      this.$store.commit("AppState/setEditingProfileId", this.profile.id);
+      this.$router.push("/newappointment");
     }
   }
 };

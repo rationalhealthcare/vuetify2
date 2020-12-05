@@ -1,9 +1,13 @@
+/** @format */
+
 "use strict";
 const namespaced = true;
 
 const state = {
   profile: {
-    editingProfileId: null
+    hello: "hello!",
+    editingProfileId: null,
+    consultantListSyncedToService: false
   },
   appBar: {
     navBarTrigger: {
@@ -89,7 +93,10 @@ const getters = {
   navDrawerStaticSettings: state => state.navDrawer.navDrawerStaticSettings,
   navDrawerUserSettings: state => state.navDrawer.navDrawerUserSettings,
   navDrawerOptions: state => state.navDrawer.navDrawerOptions,
-  editingProfileId: state => state.profile.editingProfileId
+  editingProfileId: state => state.profile.editingProfileId,
+  consultantListSyncedToService: state =>
+    state.profile.consultantListSyncedToService,
+  profile: state => state.profile
 };
 const mutations = {
   setNavDrawer(state, value) {
@@ -106,6 +113,9 @@ const mutations = {
   },
   setEditingProfileId(state, value) {
     state.profile.editingProfileId = value;
+  },
+  setConsultantListSyncedToService(state, value) {
+    state.profile.consultantListSyncedToService = value;
   }
 };
 const actions = {
@@ -121,6 +131,9 @@ const actions = {
         break;
       }
     }
+  },
+  setConsultantListSyncedToService: function({ commit }, value) {
+    commit("setConsultantListSyncedToService", value);
   }
 };
 

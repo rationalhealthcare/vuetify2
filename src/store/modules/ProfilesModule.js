@@ -1,7 +1,10 @@
-/* 
-    Profiles VUEX Module
-    @/store/modules/ProfilesModule.js
-*/
+/**
+ * /*
+ *     Profiles VUEX Module
+ *
+ * @format
+ * @/store/modules/ProfilesModule.js
+ */
 
 "use strict";
 const namespaced = true;
@@ -10,12 +13,14 @@ import { ProfileAdapter } from "@/adapters/ProfileAdapter.js";
 
 const state = {
   families: [],
-  profiles: []
+  profiles: [],
+  consultants: []
 };
 
 const getters = {
   profiles: state => state.profiles,
-  families: state => state.families
+  families: state => state.families,
+  consultants: state => state.consultants
 };
 
 const mutations = {
@@ -35,6 +40,21 @@ const mutations = {
     for (let i = 0; i < state.profiles.length; i++) {
       if (state.profiles[i].id === payload.id) {
         state.profiles[i] = Object.assign({}, payload);
+      }
+    }
+  },
+  setConsultant(state, payload) {
+    state.consultants.push(payload);
+  },
+  setConsultants(state, payload) {
+    state.consultants = payload;
+  },
+  deleteConsultant(state, payload) {
+    for (let i = 0; i < state.consultants.length; i++) {
+      if (state.consultants[i].npi === payload) {
+        //payload is npi
+        state.consultants.splice(i, 1);
+        break;
       }
     }
   }
@@ -112,6 +132,58 @@ const actions = {
         { type: "error", message: error.message },
         { root: true }
       );
+    }
+  },
+
+  /* add a selected consultant to the Vuex store consultants list */
+  async setConsultant({ commit }, payload) {
+    commit("setConsultant", payload);
+    ProfileAdapter.persistConsultant(payload, function(err, res) {
+      if (err) {
+        commit(
+          "setAlert",
+          {
+            type: "error",
+            message: "Error while persisting the Consultants list."
+          },
+          { root: true }
+        );
+      } else {
+        console.log("pProfiles/setConsultant; received", err, res);
+      }
+    });
+  },
+
+  /* get the consultants list for the _active_ family from the profile API */
+  async loadConsultants({ commit }, payload) {
+    try {
+      let res = await ProfileAdapter.loadConsultants(payload);
+      commit("setConsultants", res);
+    } catch (e) {
+      return false;
+    }
+  },
+
+  /* WIP */
+  async deleteConsultant({ commit }, payload) {
+    commit("deleteConsultant", payload.npi);
+
+    // async delete from Profile service
+    // expects payload like this: {"npi": 1427053651, "fid": 41}
+    try {
+      await ProfileAdapter.deleteConsultant(payload, result => {
+        console.log("Profiles/deleteConsultant received", result);
+
+        if (result.affectedRows > 0) {
+          commit(
+            "setAlert",
+            { type: "info", message: "Deleted " + payload.name },
+            { root: true }
+          );
+        }
+      });
+    } catch (e) {
+      return false;
     }
   }
 };
