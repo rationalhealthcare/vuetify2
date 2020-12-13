@@ -14,62 +14,64 @@ export default {
       return this.$store.getters["Profiles/consultants"];
     },
     selectedItem() {
-      return this.items[this.selected];
+      if (this.items) {
+        return this.items[this.selected];
+      } else {
+        return null;
+      }
+    },
+    showConsultantDialog() {
+      let profile = this.$store.getters["AppState/profile"];
+      return profile.showConsultantDialog;
     }
   },
   watch: {
     selectedItem() {
       if (this.selectedItem) {
-        this.$emit("selectedItem", this.selectedItem);
+        this.setAppStateSelectedItem();
+        if (this.showConsultantDialog) {
+          this.dialog = true;
+        }
       }
     }
   },
-  methods: {}
+  methods: {
+    setAppStateSelectedItem() {
+      this.$store.dispatch("AppState/setSelectedItem", this.selectedItem);
+    }
+  }
 };
 </script>
 <template>
   <v-sheet class="mx-auto" max-width="500">
-    <!--         <v-toolbar color="secondary" dark>
-            <v-toolbar-title>Search Results</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="onChoose">
-                <v-icon>mdi-checkbox-marked-circle</v-icon>
-            </v-btn>
-        </v-toolbar> -->
-
-    <v-list two-line class="px-0 mx-0">
-      <v-list-item-group
-        v-model="selected"
-        active-class="gray--text"
-        xmultiple
-        dense
-      >
-        <template v-for="item in items">
-          <v-list-item :key="item.title">
-            <template v-slot:default="{ active }">
-              <v-list-item-content>
-                <v-list-item-title
-                  v-text="item.firstname + ' ' + item.lastname"
-                  v-if="item.entitytypecode === '1'"
-                >
-                </v-list-item-title>
-                <v-list-item-title
-                  v-text="item.organizationname"
-                  v-if="item.entitytypecode === '2'"
-                >
-                </v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-icon v-if="!active" color="grey lighten-1">
-                  mdi-star-outline
-                </v-icon>
-                <v-icon v-else color="yellow darken-3">
-                  mdi-star
-                </v-icon>
-              </v-list-item-action>
-            </template>
-          </v-list-item>
-        </template>
+    <v-list class="px-0 mx-0">
+      <v-list-item-group v-model="selected" active-class="gray--text" dense>
+        <v-list-item
+          v-for="(item, index) in items"
+          xcolor="secondary darken-2"
+          :key="index"
+        >
+          <template xv-slot:default="{ active }">
+            <v-list-item-icon v-if="item.entitytypecode === '1'">
+              <v-icon>mdi-medical-bag</v-icon>
+            </v-list-item-icon>
+            <v-list-item-icon v-if="item.entitytypecode === '2'">
+              <v-icon>mdi-home-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title
+                v-text="item.firstname + ' ' + item.lastname"
+                v-if="item.entitytypecode === '1'"
+              >
+              </v-list-item-title>
+              <v-list-item-title
+                v-text="item.organizationname"
+                v-if="item.entitytypecode === '2'"
+              >
+              </v-list-item-title>
+            </v-list-item-content>
+          </template>
+        </v-list-item>
       </v-list-item-group>
     </v-list>
 
@@ -84,7 +86,7 @@ export default {
             dark
           >
             <v-app-bar flat color="rgba(0, 0, 0, 0)">
-              <v-btn dark icon @click="this.dialog = false">
+              <v-btn dark icon @click="dialog = false">
                 <v-icon>mdi-chevron-left</v-icon>
               </v-btn>
             </v-app-bar>
@@ -108,10 +110,11 @@ export default {
             </v-row>
           </v-img>
 
-          <v-list two-line dense>
+          <v-list two-line>
             <v-list-item
               v-for="(address, i) in this.selectedItem.addresses"
               :key="i"
+              dense
             >
               <v-list-item-icon>
                 <v-icon color="accent">mdi-map-marker</v-icon>

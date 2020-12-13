@@ -7,7 +7,12 @@ const state = {
   profile: {
     hello: "hello!",
     editingProfileId: null,
-    consultantListSyncedToService: false
+    consultantListSyncedToService: false,
+    selectedItem: null /* consultant */,
+    showConsultantDialog: true
+  },
+  consultant: {
+    activeComponentIndex: 0
   },
   appBar: {
     navBarTrigger: {
@@ -96,7 +101,8 @@ const getters = {
   editingProfileId: state => state.profile.editingProfileId,
   consultantListSyncedToService: state =>
     state.profile.consultantListSyncedToService,
-  profile: state => state.profile
+  profile: state => state.profile,
+  consultant: state => state.consultant
 };
 const mutations = {
   setNavDrawer(state, value) {
@@ -116,6 +122,15 @@ const mutations = {
   },
   setConsultantListSyncedToService(state, value) {
     state.profile.consultantListSyncedToService = value;
+  },
+  setSelectedItem(state, value) {
+    state.profile.selectedItem = value;
+  },
+  setShowConsultantDialog(state, value) {
+    state.profile.showConsultantDialog = value;
+  },
+  setConsultantActiveComponentIndex(state, value) {
+    state.consultant.activeComponentIndex = value;
   }
 };
 const actions = {
@@ -134,6 +149,15 @@ const actions = {
   },
   setConsultantListSyncedToService: function({ commit }, value) {
     commit("setConsultantListSyncedToService", value);
+  },
+  setSelectedItem: function({ commit }, value) {
+    commit("setSelectedItem", value);
+  },
+  setShowConsultantDialog: function({ commit }, value) {
+    commit("setShowConsultantDialog", value);
+  },
+  setConsultantActiveComponentIndex: function({ commit }, value) {
+    commit("setConsultantActiveComponentIndex", value);
   }
 };
 

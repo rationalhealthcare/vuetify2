@@ -19,10 +19,13 @@ const AUTH_HEADER = {
 // NOTE FOR DAD: When you want to change the api BASE_URL just execute this in your terminal:
 // export VUE_APP_API_ENDPOINT="http://192.168.0.7:5000/api/v1/profiles/"
 const util = require("util");
+/* 
 const BASE_URL = util.format(
   "%s/api/v1/profiles/",
   process.env.VUE_APP_API_ENDPOINT
 );
+ */
+const BASE_URL = util.format("", process.env.VUE_APP_API_ENDPOINT);
 //const BASE_URL = "http://192.168.0.7:5000/api/v1/profiles/";
 //const BASE_URL = "https://api.kergiva.app/api/v1/profiles/";
 
@@ -59,6 +62,11 @@ export const ProfileAdapter = {
 
   loadProfiles: async function(uid) {
     console.log("Fetching profile for uid: " + uid);
+    console.log("BASE_URL", BASE_URL);
+    console.log(
+      "process.env.VUE_APP_API_ENDPOINT",
+      process.env.VUE_APP_API_ENDPOINT
+    );
     let uri = BASE_URL + "uid/" + uid;
     let res = await axios.get(uri, AUTH_HEADER);
     if (res) {
@@ -86,11 +94,46 @@ export const ProfileAdapter = {
     }
   },
 
-  loadConsultants: async function(fid) {
-    let uri = BASE_URL + "consultants/fid/" + fid;
-    let res = await axios.get(uri, AUTH_HEADER);
-    console.log("ProfileAdapter.loadConsultants", res);
-    return res.data.response;
+  /**
+   *
+   * Consultant
+   *
+   */
+
+  loadConsultants: async function(fid, cb) {
+    try {
+      let uri = BASE_URL + "consultants/fid/" + fid;
+      let res = await axios.get(uri, AUTH_HEADER);
+      if (res) {
+        console.log("ProfileAdapter.loadConsultants received:", res.data);
+        /*
+                * Reformat the arrays received from the Profile Consultant 
+                * service
+                * INPUT:  
+                { practitioners,
+                  organizations,
+                  addresses,
+                  phones};
+                */
+        var consultants = res.data.organizations.concat(res.data.practitioners);
+        for (let consultant of consultants) {
+          var npi = consultant.npi;
+          var addresses = res.data.addresses.filter(function(address) {
+            return address.npi === npi;
+          });
+          for (let address of addresses) {
+            var phones = res.data.phones.filter(function(phone) {
+              return phone.npi === npi && phone.md5 === address.md5;
+            });
+            address["phones"] = phones;
+          }
+          consultant["addresses"] = addresses;
+        }
+        cb(null, consultants);
+      }
+    } catch (e) {
+      cb(e, null);
+    }
   },
 
   persistConsultant: async function(payload, cb) {

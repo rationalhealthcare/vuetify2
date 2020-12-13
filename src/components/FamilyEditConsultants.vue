@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <v-card flat>
+  <v-card flat @click.stop="">
     <v-speed-dial
       direction="bottom"
       absolute
@@ -11,18 +11,16 @@
     >
       <template v-slot:activator>
         <v-btn color="accent" dark fab small @click="fab = !fab">
-          <v-icon v-if="fab">
+          <!-- <v-icon v-if="fab"> -->
+          <v-icon>
             mdi-menu
           </v-icon>
-          <v-icon v-else>
+          <!--           <v-icon v-else>
             mdi-close
-          </v-icon>
+          </v-icon> -->
         </v-btn>
       </template>
 
-      <v-btn fab small color="accent lighten-1" @click="clickedDetails">
-        <v-icon>mdi-car</v-icon>
-      </v-btn>
       <v-btn fab dark small color="accent lighten-1" @click="clickedNew">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
@@ -35,7 +33,7 @@
       Consultants List
     </v-card-title>
     <v-card-text>
-      <Consultants :showDialog="true" @selectedItem="onItemSelect" />
+      <Consultants />
     </v-card-text>
   </v-card>
 </template>
@@ -48,9 +46,7 @@ export default {
   data: function() {
     return {
       fab: true,
-      practitionerNames: [],
-      selectedItem: null,
-      showDialog: false
+      practitionerNames: []
     };
   },
   computed: {
@@ -63,6 +59,10 @@ export default {
     familyId() {
       let families = this.$store.getters["Profiles/families"];
       return families[0].id;
+    },
+    selectedItem() {
+      let profile = this.$store.getters["AppState/profile"];
+      return profile.selectedItem;
     }
   },
   watch: {
@@ -76,26 +76,32 @@ export default {
         this.practitionerNames.push(item.firstname + " " + item.lastname);
       }
     },
-    getConsultants() {},
     clickedNew() {
       this.$router.push({ path: "/consultant" });
     },
-    clickedDelete() {
+
+    /**
+     *  clickedDelete
+     * This method is "async" to enable the setShowConsultantDialog flag
+     * to be set to false before deleting the consultant locally, then
+     * setting it true again, so that the consultant details dialog does
+     * not pop up unexpectedly after a consultant has been deleted.
+     */
+    async clickedDelete() {
       //build the payload: {npi, fid}
       let npi = this.selectedItem.npi;
       let fid = this.familyId;
       let name = this.selectedItem.firstname + " " + this.selectedItem.lastname;
-      this.$store.dispatch("Profiles/deleteConsultant", {
+      this.$store.dispatch("AppState/setShowConsultantDialog", false);
+      await this.$store.dispatch("Profiles/deleteConsultant", {
         npi,
         fid,
         name
       });
+      this.$store.dispatch("AppState/setShowConsultantDialog", true);
     },
     onItemSelect(value) {
       this.selectedItem = value;
-    },
-    clickedDetails() {
-      this.showDialog = true;
     }
   }
 };

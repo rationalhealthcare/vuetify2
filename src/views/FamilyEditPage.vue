@@ -10,12 +10,15 @@
           </p>
         </v-card-title>
         <v-card-text>
-          <FamilyEditGeneral v-if="value === 0" />
-          <FamilyEditConsultants v-if="value === 1" />
+          <!--                     <FamilyEditGeneral v-if="value === 0" />
+                    <FamilyEditConsultants v-if="value === 1" /> -->
+          <FamilyEditGeneral v-if="activeComponent === 0" />
+          <FamilyEditConsultants v-if="activeComponent === 1" />
         </v-card-text>
         <v-bottom-navigation
           :input-value="drawer"
-          v-model="value"
+          xv-model="value"
+          v-model="activeComponent"
           color="accent"
           class="v-bottom-nav"
         >
@@ -41,6 +44,7 @@ export default {
   components: { FamilyEditGeneral, FamilyEditConsultants },
   data: () => ({
     value: "General",
+    activeComponent: 0,
     drawer: true,
     item: 0,
     items: [
@@ -58,11 +62,22 @@ export default {
           sync after that.
         */
     this.loadConsultantList();
+
+    this.setActiveComponent();
   },
 
   computed: {
     loading() {
       return this.$store.getters.loading;
+    }
+  },
+  watch: {
+    activeComponent() {
+      //cache this value in AppState
+      this.$store.dispatch(
+        "AppState/setConsultantActiveComponentIndex",
+        this.activeComponent
+      );
     }
   },
   methods: {
@@ -83,6 +98,10 @@ export default {
         this.$store.dispatch("Profiles/loadConsultants", family.id);
         this.$store.dispatch("AppState/setConsultantListSyncedToService", true);
       }
+    },
+    setActiveComponent() {
+      let consultant = this.$store.getters["AppState/consultant"];
+      this.activeComponent = consultant.activeComponentIndex;
     }
   }
 };

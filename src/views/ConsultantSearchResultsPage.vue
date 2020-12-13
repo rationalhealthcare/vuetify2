@@ -98,8 +98,6 @@ export default {
               </v-list-item-action>
             </template>
           </v-list-item>
-
-          <!-- <v-divider v-if="index < items.length - 1" :key="index"></v-divider> -->
         </template>
       </v-list-item-group>
     </v-list>

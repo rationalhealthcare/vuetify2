@@ -149,31 +149,43 @@ const actions = {
           { root: true }
         );
       } else {
-        console.log("pProfiles/setConsultant; received", err, res);
+        console.log("Profiles/setConsultant; received", err, res);
       }
     });
   },
 
   /* get the consultants list for the _active_ family from the profile API */
   async loadConsultants({ commit }, payload) {
+    console.log("Profiles/loadConsultants fired.");
     try {
-      let res = await ProfileAdapter.loadConsultants(payload);
-      commit("setConsultants", res);
+      ProfileAdapter.loadConsultants(payload, function(err, res) {
+        if (err) {
+          console.log(err);
+          commit(
+            "setAlert",
+            {
+              type: "error",
+              message: "ProfileAdapter returned an error."
+            },
+            { root: true }
+          );
+        } else {
+          console.log("Profiles/loadConsultants received", res);
+          commit("setConsultants", res);
+        }
+      });
     } catch (e) {
       return false;
     }
   },
 
-  /* WIP */
   async deleteConsultant({ commit }, payload) {
     commit("deleteConsultant", payload.npi);
-
     // async delete from Profile service
     // expects payload like this: {"npi": 1427053651, "fid": 41}
     try {
       await ProfileAdapter.deleteConsultant(payload, result => {
         console.log("Profiles/deleteConsultant received", result);
-
         if (result.affectedRows > 0) {
           commit(
             "setAlert",

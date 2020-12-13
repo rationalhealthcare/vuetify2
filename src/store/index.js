@@ -1,3 +1,5 @@
+/** @format */
+
 import Vue from "vue";
 import Vuex from "vuex";
 import AuthModule from "@/store/modules/AuthModule.js";
@@ -18,9 +20,10 @@ export default new Vuex.Store({
     UserPrefs: UserPreferencesModule,
     Consultant: ConsultantModule
   },
-
+  /* wip - maybe can take out "deleting" property etc. */
   state: {
     loading: false,
+    deleting: false,
     error: null,
     alert: null,
     userCache: null
@@ -29,7 +32,9 @@ export default new Vuex.Store({
     setLoading(state, payload) {
       state.loading = payload;
     },
-
+    setDeleting(state, payload) {
+      state.deleting = payload;
+    },
     /* USER CACHE */
     setUserCache(state, payload) {
       state.userCache = payload;
@@ -63,6 +68,9 @@ export default new Vuex.Store({
   getters: {
     loading(state) {
       return state.loading;
+    },
+    deleting(state) {
+      return state.deleting;
     },
     error(state) {
       return state.error;
