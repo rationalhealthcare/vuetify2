@@ -88,7 +88,7 @@ export default {
       if (clickAction === "signout") {
         this.$store.dispatch("Auth/signUserOut");
         this.$store.commit("Profiles/signOut");
-        //this.$router.push("/");
+        this.$router.push("/");
       }
     }
   }

@@ -11,13 +11,9 @@
     >
       <template v-slot:activator>
         <v-btn color="accent" dark fab small @click="fab = !fab">
-          <!-- <v-icon v-if="fab"> -->
           <v-icon>
             mdi-menu
           </v-icon>
-          <!--           <v-icon v-else>
-            mdi-close
-          </v-icon> -->
         </v-btn>
       </template>
 

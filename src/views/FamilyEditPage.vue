@@ -10,14 +10,11 @@
           </p>
         </v-card-title>
         <v-card-text>
-          <!--                     <FamilyEditGeneral v-if="value === 0" />
-                    <FamilyEditConsultants v-if="value === 1" /> -->
           <FamilyEditGeneral v-if="activeComponent === 0" />
           <FamilyEditConsultants v-if="activeComponent === 1" />
         </v-card-text>
         <v-bottom-navigation
           :input-value="drawer"
-          xv-model="value"
           v-model="activeComponent"
           color="accent"
           class="v-bottom-nav"
