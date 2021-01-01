@@ -56,6 +56,19 @@
       <v-main>
         <!-- Provides the application the proper gutter -->
         <v-container fluid>
+          <!-- BEGIN ALERT -->
+          <v-layout row v-if="alert">
+            <v-row justify="center" xs11 sm6 lg8 offset-sm3>
+              <app-alert
+                :type="alert.type"
+                @dismissed="onDismissed"
+                :text="alert.message"
+                :tag="alert.tag"
+              ></app-alert>
+            </v-row>
+          </v-layout>
+          <!-- END ALERT -->
+
           <!-- If using vue-router -->
           <router-view></router-view>
         </v-container>
@@ -68,18 +81,6 @@
           </small>
           <!-- -->
         </v-footer>
-
-        <!-- BEGIN ALERT -->
-        <v-layout row v-if="alert">
-          <v-flex xs12 sm6 offset-sm3>
-            <app-alert
-              :type="alert.type"
-              @dismissed="onDismissed"
-              :text="alert.message"
-            ></app-alert>
-          </v-flex>
-        </v-layout>
-        <!-- END ALERT -->
       </v-container>
     </v-app>
   </div>

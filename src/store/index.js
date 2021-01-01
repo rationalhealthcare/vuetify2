@@ -8,6 +8,7 @@ import ProfilesModule from "@/store/modules/ProfilesModule.js";
 import ThemeModule from "@/store/modules/ThemeModule.js";
 import UserPreferencesModule from "@/store/modules/UserPreferencesModule.js";
 import ConsultantModule from "@/store/modules/ConsultantModule.js";
+import AppointmentModule from "@/store/modules/AppointmentModule.js";
 
 Vue.use(Vuex);
 
@@ -18,7 +19,8 @@ export default new Vuex.Store({
     Profiles: ProfilesModule,
     Themes: ThemeModule,
     UserPrefs: UserPreferencesModule,
-    Consultant: ConsultantModule
+    Consultant: ConsultantModule,
+    Appointments: AppointmentModule
   },
   /* wip - maybe can take out "deleting" property etc. */
   state: {

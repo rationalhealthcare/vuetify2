@@ -33,6 +33,9 @@ const mutations = {
   setFamilies(state, payload) {
     state.families = payload;
   },
+  setFamily(state, payload) {
+    state.families[0] = payload;
+  },
   signOut(state) {
     state.profiles = [];
   },
@@ -196,6 +199,36 @@ const actions = {
       });
     } catch (e) {
       return false;
+    }
+  },
+  /* family: {name, alias} */
+
+  async setFamily({ commit }, payload) {
+    commit("setFamily", payload);
+    try {
+      await ProfileAdapter.updateFamiliy(payload, function(err, res) {
+        console.log("Profiles/setFamily received", res);
+        if (res.data > 0) {
+          commit(
+            "setAlert",
+            {
+              type: "info",
+              message: "Updated family " + payload.name,
+              tag: "familyEditGeneral"
+            },
+            { root: true }
+          );
+        }
+      });
+    } catch (e) {
+      commit(
+        "setAlert",
+        {
+          type: "error",
+          message: "Error while updating Family."
+        },
+        { root: true }
+      );
     }
   }
 };

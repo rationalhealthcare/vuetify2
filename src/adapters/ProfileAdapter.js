@@ -94,6 +94,21 @@ export const ProfileAdapter = {
     }
   },
 
+  updateFamiliy: async function(family, cb) {
+    let uri = BASE_URL + "family/fid/" + family.id;
+    let res = await axios.put(uri, family, AUTH_HEADER);
+    if (res) {
+      console.log(
+        "ProfileAdapter.updateFamiliy got response: ",
+        JSON.stringify(res)
+      );
+      cb(null, res);
+    } else {
+      cb(res, null);
+      //throw "ProfileAdapter.updateFamiliy: No response from API.";
+    }
+  },
+
   /**
    *
    * Consultant
