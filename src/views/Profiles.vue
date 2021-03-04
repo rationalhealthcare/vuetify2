@@ -62,6 +62,7 @@
 /* */
 
 <script>
+"use strict";
 import ProfileCard from "@/components/ProfileCard.vue";
 export default {
   name: "Profiles",
@@ -78,8 +79,6 @@ export default {
     };
   },
   mounted() {
-    /*     this.setFamilies();
-    this.setProfiles(); */
   },
   computed: {
     families() {

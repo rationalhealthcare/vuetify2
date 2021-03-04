@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "@/views/Home.vue";
+//import Home from "@/views/Home.vue";
 import SignupPage from "@/views/SignupPage.vue";
 import SigninPage from "@/views/SigninPage.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
@@ -18,8 +18,8 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "Home",
-    component: Home
+    name: "Profiles",
+    component: Profiles
   },
   {
     path: "/signup",
@@ -68,14 +68,29 @@ const routes = [
       )
   },
   {
-    path: "/newappointment",
-    name: "AppointmentNewPage",
+    path: "/appointments",
+    name: "AppointmentsPage",
     component: () =>
       import(
-        /* webpackChunkName: "newappointment" */ "../views/AppointmentNewPage.vue"
+        /* webpackChunkName: "appointmentspage" */ "../views/AppointmentsPage.vue"
       )
   },
-
+  {
+    path: "/appointments/new",
+    name: "AppointmentPage",
+    component: () =>
+      import(
+        /* webpackChunkName: "appointmentnewspage" */ "../views/AppointmentPage.vue"
+      )
+  },
+  {
+    path: "/appointment/edit",
+    name: "AppointmentPage",
+    component: () =>
+      import(
+        /* webpackChunkName: "appointmenteditspage" */ "../views/AppointmentPage.vue"
+      )
+  },
   {
     path: "/consultant",
     name: "ConsultantSearchPage",

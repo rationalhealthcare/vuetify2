@@ -10,6 +10,8 @@ Vue.config.productionTip = false;
 Vue.component("app-error", ErrorComponent);
 Vue.component("app-alert", AppAlertComponent);
 
+console.log("Using Vue version:", Vue.version);
+
 new Vue({
   router,
   store,

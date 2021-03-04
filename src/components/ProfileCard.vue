@@ -29,10 +29,10 @@
         </v-list-item>
 
         <v-card-actions>
-            <v-btn xoutlined xrounded text @click="clickedEdit">
+            <v-btn text @click="clickedEditProfile">
                 Edit
             </v-btn>
-            <v-btn xoutlined xrounded text @click="clickedAppointment">
+            <v-btn text @click="clickedNewAppointment">
                 Appointment
             </v-btn>
         </v-card-actions>
@@ -41,6 +41,7 @@
 /* */
 
 <script>
+"use strict";
 const { v4: uuidv4 } = require("uuid");
 export default {
     name: "ProfileCard",
@@ -50,17 +51,21 @@ export default {
                 apptid: null,
                 fid: null,
                 caregivername: null,
+                apptsubjectid: null,
                 subjectname: null,
                 consultantname: null,
                 apptdate: null,
                 appttime: null,
-                complaint: null,
+                apptreason: null,
                 address1: null,
                 address2: null,
                 city: null,
                 state: null,
                 postalcode: null,
                 countrycode: "US",
+                notes: null,
+                files: [],
+                subjectavatarpath: null,
             },
         };
     },
@@ -70,9 +75,14 @@ export default {
             let namearr = this.profile.name.split(" ");
             return namearr[0];
         },
-        editingAppointmentId() {
-            let appointment = this.$store.getters["AppState/appointment"];
-            return appointment.editingAppointmentId;
+        editingAppointment: function() {
+            let appointments = this.$store.getters["Appointments/appointments"];
+            for (let i = 0; i < appointments.length; i++) {
+                if (appointments[i].editing) {
+                    return appointments[i];
+                }
+            }
+            return null;
         },
         caregiverProfile() {
             let profiles = this.$store.getters["Profiles/profiles"];
@@ -80,30 +90,35 @@ export default {
         },
     },
     watch: {
-        editingAppointmentId() {
-            if (this.editingAppointmentId) {
-                this.$router.push("/newappointment");
+        editingAppointment() {
+            if (this.editingAppointment) {
+                this.$router.push("/appointments/new");
             }
         },
     },
     methods: {
-        clickedEdit() {
+        clickedEditProfile() {
             this.$store.commit("AppState/setEditingProfileId", this.profile.id);
             this.$router.push("/editprofile");
         },
-        /* refactor...  */
-        clickedAppointment() {
+        clickedNewAppointment() {
             let uuid = uuidv4();
             this.appointment.apptid = uuid;
             this.appointment.fid = this.family.id;
             this.appointment.caregivername = this.caregiverProfile.name;
+            this.appointment.apptsubjectid = this.profile.id;
             this.appointment.subjectname = this.profile.alias;
-            this.$store.dispatch("AppState/setAppointment", {
-                editingAppointment: this.appointment,
-                editingAppointmentId: uuid,
-                currentTab: 0,
-            });
-            this.$store.commit("AppState/setEditingProfileId", this.profile.id);
+            this.appointment.subjectavatarpath = this.profile.avatarpath;
+            this.$store.dispatch(
+                "Appointments/saveAppointment",
+                this.appointment
+            );
+            //setting the new appointment's editing flag by comitting a
+            //mutation so as to deactivate editing on all other appointments
+            this.$store.commit(
+                "Appointments/setEditingActive",
+                this.appointment
+            );
         },
     },
 };

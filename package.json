@@ -8,12 +8,18 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "axios": "^0.21.0",
+    "D": "^1.0.0",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "dedent": "^0.7.0",
     "firebase": "^8.2.1",
+    "form-data": "^3.0.0",
+    "md5": "^2.3.0",
+    "underscore": "^1.12.0",
     "uuid": "^8.3.2",
     "vue": "^2.6.11",
     "vue-axios": "^3.2.0",
+    "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",
     "vuex": "^3.4.0"

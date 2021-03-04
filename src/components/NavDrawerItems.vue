@@ -52,7 +52,7 @@ export default {
         {
           text: "Appointments",
           icon: "mdi-calendar-multiple",
-          to: "/newappointment"
+          to: "/appointments"
         },
         {
           text: "Preferences",

@@ -92,11 +92,6 @@ const state = {
             },
         ],
     },
-    appointment: {
-        editingAppointment: null,
-        /* editingAppointmentId: null, */
-        /* currentTabIndex: 0 */
-    },
 };
 
 const getters = {
@@ -173,24 +168,7 @@ const actions = {
         console.log("AppState/setAppointment Action:", value);
         commit("setAppointment", value);
     },
-    syncAppointment: function({ commit }, payload) {
-        console.log("Appstate/syncAppointment: Inbound", payload);
-        //console.log("Appstate/syncAppointment: Current", state.appointment);
-        let apptState = Object.assign({}, state.appointment);
-        let apptWip = Object.assign({}, state.appointment.editingAppointment);
-        console.log("Appstate/syncAppointment: Current working copy", apptWip);
-        if (apptWip) {
-            for (let prop in apptWip) {
-                if (apptWip[prop] != payload[prop]) {
-                    apptWip[prop] = payload[prop];
-                }
-            }
-            apptState.editingAppointment = Object.assign({}, apptWip);
-            commit("setAppointment", apptState);
-        } else {
-            commit("setAppointment", payload);
-        }
-    },
+
 };
 
 export default {
