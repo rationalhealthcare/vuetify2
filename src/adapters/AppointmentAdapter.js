@@ -9,10 +9,8 @@
 
 "use strict";
 import axios from "axios";
-import FormData from "form-data";
 const util = require("util");
 const me = "AppointmentAdapter";
-const CONTENT_TYPE_MULTIPART_FORMDATA = "multipart/form-data";
 const CONTENT_TYPE_APP_JSON = "application/json";
 const REQUEST_HEADERS = {
     headers: {
@@ -20,19 +18,6 @@ const REQUEST_HEADERS = {
     },
 };
 
-/* const JSON_HEADER = {
-    headers: {
-        Authorization: "bearer " + process.env.VUE_APP_JWT_BEARER_TOKEN,
-        "Content-Type": "application/json",
-    },
-}; */
-
-/* const AUTH_HEADER_MULTIPART = {
-    headers: {
-        Authorization: process.env.VUE_APP_JWT_BEARER_TOKEN,
-        "Content-Type": "multipart/form-data",
-    },
-}; */
 // NOTE FOR DAD: When you want to change the api BASE_URL just execute this in your terminal:
 // export VUE_APP_API_ENDPOINT="http://192.168.0.7:5000/api/v1/profiles/"
 
@@ -43,99 +28,77 @@ const APPT_ENDPOINT = util.format(
     process.env.VUE_APP_API_APPOINTMENT_ENDPOINT
 );
 
-const Helper = {
-    prepFormData: function(payload) {
-        console.log(
-            "AppointmentAdapter.Helper.prepFormData() payload...",
-            payload
-        );
-        let formData = new FormData();
-        if (payload.files) {
-            for (let file of payload.files) {
-                var blob = new Blob([file], { type: file.type });
-                formData.append("files", blob, file.name);
-            }
-            delete payload.files;
-        }
-        formData.append("fields", JSON.stringify(payload));
-        return formData;
-    },
-};
-
 export const AppointmentAdapter = {
+    /**
+     *
+     * @param {*} fid Family ID
+     * @param {*} cb Callback. Returns an array of appointments, or an error.
+     * @returns
+     */
     getAppointmentsByFamilyId: async function(fid, cb) {
+        const fn = "getAppointmentsByFamilyId()";
+        console.log(me, fn);
         let endpoint = APPT_ENDPOINT + "/fid/" + fid;
         let headers = REQUEST_HEADERS;
         headers.headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
         let res = await axios.get(endpoint, headers);
+        console.log(me, fn, "res", res);
         if (res) {
-            console.log(
-                "AppointmentAdapter.getAppointmentsByFamilyId",
-                res.data
-            );
+            console.log(me, fn, "res.data", res.data);
+            // add the files array so that it's reactive when the files are
+            // added upon the selection of an appointment
+            for (let d of res.data.data) {
+                d["files"] = [];
+            }
+            console.log(me, fn, "Returning", res.data);
             return cb(null, res.data);
         }
     },
 
+    /**
+     *
+     * @param {*} payload
+     * @param {*} cb: callback (err, res){...}
+     */
     persistNewAppointment: async function(payload, cb) {
-        const f = "persistNewAppointment";
-        let endpoint = APPT_ENDPOINT + "/multipart";
+        const fn = "persistNewAppointment()";
+        let endpoint = APPT_ENDPOINT + "/appointment";
         let headers = REQUEST_HEADERS;
-        headers["Content-Type"] = CONTENT_TYPE_MULTIPART_FORMDATA;
-        console.log("AppointmentAdapter.persistNewAppointment", endpoint);
-        {
-            const h = Helper;
-            let res = await axios.post(
-                endpoint,
-                h.prepFormData(payload),
-                headers
-            );
-            if (res) {
-                console.log(
-                    me,
-                    f,
-                    "Appointment Service returned:",
-                    JSON.stringify(res.data)
-                );
-                cb = res.data;
-                return cb;
-            }
+        headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
+        console.log(me, fn, endpoint);
+
+        //console.log(me, fn, "Bin files removed.", payload);
+
+        let res = await axios.post(endpoint, payload, headers);
+        console.log(me, fn, "API returned", res);
+        if (res) {
+            return cb(null, res.data);
+        } else {
+            return cb(new Error("Error calling API."), null);
         }
     },
 
     persistEditedAppointment: async function(payload, cb) {
-        const h = Helper;
-        let endpoint = util.format(
-            "%s/apptid/%s",
-            APPT_ENDPOINT,
-            payload.apptid
-        );
-        let headers = REQUEST_HEADERS;
-        headers["Content-Type"] = CONTENT_TYPE_MULTIPART_FORMDATA;
-        console.log("AppointmentAdapter.persistEditedAppointment", endpoint);
-        let res = await axios.put(endpoint, h.prepFormData(payload), headers);
-        if (res) {
-            console.log(
-                "AppointmentAdapter.persistEditedAppointment; Appointment Service returned:",
-                JSON.stringify(res.data)
-            );
-            cb = res.data;
-            return cb;
-        }
-    },
+        const fn = "persistEditedAppointment()";
+        console.log(me, fn, "payload", payload);
 
-    getFilesByAppointmentId: async function(apptid, cb) {
-        console.log("AppointmentAdapter.getFilesByAppointmentId fired.");
-        let endpoint = APPT_ENDPOINT + "/files/apptid/" + apptid;
+        let endpoint = util.format("%s/appointment/", APPT_ENDPOINT);
         let headers = REQUEST_HEADERS;
-        headers.headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
-        let res = await axios.get(endpoint, headers);
+        headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
+        console.log(me, fn, endpoint);
+        let res = await axios.put(endpoint, payload, headers);
+        console.log(me, fn, "API returned:", JSON.stringify(res));
         if (res) {
-            console.log("AppointmentAdapter.getFilesByAppointmentId", res.data);
             return cb(null, res.data);
         }
     },
-    
+
+    /**
+     * deleteAppointmentAndFilesById
+     * @param {*} apptid Appointment ID
+     * @param {*} cb Callback.
+     * @returns Confirmation that the opertion was successful, or an error.
+     */
     deleteAppointmentAndFilesById: async function(apptid, cb) {
         console.log(me, "deleteAppointmentAndFilesById", apptid);
         let endpoint = APPT_ENDPOINT + "/apptid/" + apptid;
@@ -147,6 +110,26 @@ export const AppointmentAdapter = {
             return cb(null, res);
         } else {
             throw "Error deleting Appointment";
+        }
+    },
+
+    /**
+     * getFilesByAppointmentId
+     * @param {*} apptid Appointment ID
+     * @returns onfirmation that the opertion was successful, or an error.
+     */
+    getFilesByAppointmentId: async function(apptid, cb) {
+        const fn = "getFilesByAppointmentId";
+        console.log(me, fn);
+        let endpoint = APPT_ENDPOINT + "/files/apptid/" + apptid;
+        let headers = REQUEST_HEADERS;
+        headers.headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
+        let res = await axios.get(endpoint, headers);
+        if (res) {
+            console.log(me, fn, "Returning", res.data);
+            return cb(null, res.data);
+        } else {
+            cb("Error fetching Appointment files.", null);
         }
     },
 };

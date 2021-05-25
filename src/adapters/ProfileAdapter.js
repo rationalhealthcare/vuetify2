@@ -8,8 +8,9 @@
  */
 "use strict";
 import axios from "axios";
+const me = "ProfileAdapter";
 const util = require("util");
-const log = util.debuglog('ProfileAdapter');
+// log = util.debuglog("ProfileAdapter");
 const AUTH_HEADER = {
     headers: {
         Authorization: process.env.VUE_APP_JWT_BEARER_TOKEN,
@@ -36,18 +37,28 @@ const BASE_URL = util.format(
 /* const BASE_URL =
     process.env.VUE_APP_API_URL + ":" + process.env.VUE_APP_API_PORT;
  */
-
+//VUE_APP_API_BASE_URL=http://192.168.1.128:5000/api/v1
 const BASE_URL = util.format(
     "%s:%s",
     process.env.VUE_APP_API_URL,
     process.env.VUE_APP_API_PORT
 );
+
+/* const URL = util.format(
+    "%s:%s/%s",
+    process.env.VUE_APP_API_URL,
+    process.env.VUE_APP_API_PORT,
+    process.env.VUE_APP_API_PROFILES_ENDPOINT
+); */
+
 const PROFILES_ENDPOINT = BASE_URL + "/api/v1/profiles";
 const CONSULTANT_ENDPOINT = BASE_URL + "/api/v1/profiles/consultant";
 
-log("BASE_URL %d", BASE_URL);
-log("PROFILES_ENDPOINT %d", PROFILES_ENDPOINT);
-log("CONSULTANT_ENDPOINT %d", CONSULTANT_ENDPOINT);
+axios.defaults.baseURL = BASE_URL;
+
+//log("BASE_URL %d", BASE_URL);
+//log("PROFILES_ENDPOINT %d", PROFILES_ENDPOINT);
+//log("CONSULTANT_ENDPOINT %d", CONSULTANT_ENDPOINT);
 
 export const ProfileAdapter = {
     /*  new profile for _new_ user */
@@ -90,17 +101,24 @@ export const ProfileAdapter = {
     },
 
     loadProfiles: async function(uid) {
-        console.log("Fetching profile for uid: " + uid);
+        const fn = "loadProfiles()";
+        //let uri = PROFILES_ENDPOINT + "/uid/" + uid;
         let uri = PROFILES_ENDPOINT + "/uid/" + uid;
-        let res = await axios.get(uri, AUTH_HEADER);
-        if (res) {
-            console.log(
-                "ProfileAdapter.loadProfiles got from API:",
-                JSON.stringify(res)
-            );
-            return res.data;
-        } else {
-            throw "Profiles API returned an empty profile.";
+        console.log(me, fn, "axios.get", uri);
+        try {
+            let res = await axios.get(uri, AUTH_HEADER);
+
+            console.log(me, fn, "axios returned", res);
+            if (res) {
+                console.log(
+                    "ProfileAdapter.loadProfiles got from API:",
+                    JSON.stringify(res)
+                );
+                return res.data;
+            }
+        } catch (error) {
+            console.log(error);
+            throw error;
         }
     },
 

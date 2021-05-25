@@ -9,12 +9,11 @@
             <v-textarea
                 color="secondary"
                 outlined
-                v-model="apptprop.notes"
+                v-model="value.notes"
                 clearable
                 persistent-hint
                 :hint="ui.hint"
                 :label="ui.label"
-                @input="sync"
             >
             </v-textarea>
         </v-card-text>
@@ -22,11 +21,15 @@
 </template>
 
 <script>
-const me = "ApptNotes component";
 export default {
     name: "ApptNotes",
-    props: ["apptprop"],
-    data: function() {
+    props: {
+        value: {
+            type: Object,
+            required: true,
+        },
+    },
+        data: function() {
         return {
             ui: {
                 text: "Start here...",
@@ -37,12 +40,9 @@ export default {
             content: "",
         };
     },
-    mounted: function() {
-        console.log(me, "MOUNTED.");
-    },
-    methods: {
-        sync: async function() {
-            this.$emit("sync", this.apptprop);
+        watch: {
+        value() {
+            this.$emit("input", this.value);
         },
     },
 };

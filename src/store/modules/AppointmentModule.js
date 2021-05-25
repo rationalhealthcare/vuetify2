@@ -1,6 +1,6 @@
 /**
  *
- *     Appointments VUEX Module
+ * Appointments VUEX Module
  *
  * @format
  * @/store/modules/AppointmentsModule.js
@@ -8,111 +8,145 @@
 
 "use strict";
 const namespaced = true;
-const me = "Vuex AppointmentsModule";
+const me = "Vuex AppointmentModule";
 import { AppointmentAdapter } from "@/adapters/AppointmentAdapter.js";
+import { S3Adapter } from "@/adapters/S3Adapter.js";
 
-export const AppointmentHelper = {
-    appointmentExists: function(payload) {
-        let appointments = state.appointments;
-        let apptExists = false;
-        if (appointments) {
-            console.log(
-              me,
-                "AppointmentHelper.appointmentExists: # Appts in module:",
-                appointments.length
-            );
-            for (let appt of appointments) {
-                if (appt.apptid == payload.apptid) {
-                    apptExists = true;
-                    break;
-                }
-            }
+const FileHelper = {
+    /**
+     * Utility function to remove binary files from the meta-file object before
+     * the appointment is persisted to the API.
+     */
+    stripOffBinaryFiles: function(payload) {
+        //strip out the binary files before persisting the meta-file object
+        let apptByVal = Object.assign({}, payload);
+        let filesByVal = apptByVal.files.slice(0);
+        for (let f of filesByVal) {
+            delete f.file;
         }
-        return apptExists;
+        apptByVal.files = filesByVal;
+        return apptByVal;
     },
 };
 
 const state = {
     appointments: [],
+    appointmentModel: {
+        apptid: null,
+        fid: null,
+        caregivername: null,
+        apptsubjectid: null,
+        subjectname: null,
+        consultantname: null,
+        apptdate: null,
+        appttime: null,
+        apptreason: null,
+        address1: null,
+        address2: null,
+        city: null,
+        state: null,
+        postalcode: null,
+        countrycode: "US",
+        notes: null,
+        files: [],
+        subjectavatarpath: null,
+    },
 };
 
 const getters = {
     appointments: (state) => state.appointments,
+    appointmentModel: (state) => state.appointmentModel,
 };
 
 const mutations = {
     addAppointment(state, payload) {
-        state.appointments.push(payload);
+        let index = state.appointments.length;
+        state.appointments.splice(index, 0, payload);
     },
 
-    replaceAppointment(state, payload) {
-        let index = state.appointments.findIndex(
-            ({ apptid }) => apptid == payload.apptid
-        );
-        console.log(
-            "Appointment state mutation 'replaceAppointment', index",
-            index
-        );
-        state.appointments[index] = payload;
+    updateAppointment(state, payload) {
+        let index = payload.index;
+        let appt = payload.appt;
+        state.appointments[index] = appt;
     },
+
     setAppointments(state, payload) {
         state.appointments = payload;
     },
 
-    /*
-      The appointment is being edited if the value of the "editing" property
-      is "true". The appointment is NOT being editied if there is no "editing"
-      property. 
-    */
-    setEditingActive(state, payload) {
-        console.log("AppointmentModule.MUTATIONS.setEditingActive", payload);
-        for (let i = 0; i < state.appointments.length; i++) {
-            if (state.appointments[i].apptid == payload.apptid) {
-                if ("editing" in state.appointments[i]) {
-                    state.appointments[i].editing = true;
-                } else {
-                    state.appointments[i]["editing"] = true;
-                }
-            } else {
-                delete state.appointments[i].editing;
-            }
-        }
-        console.log(me, "raw appointment", state.appointments);
+    // payload: {index: Number, files:[]}
+    setAppointmentFiles(state, payload) {
+        state.appointments[payload.index].files = payload.files;
     },
 };
 
 const actions = {
-    /**
-     * getFilesByAppointmentId
-     * @param {*} commit
-     * @param {*} apptid
-     */
-    async getFilesByAppointmentId({ commit }, apptid) {
-      const fn = "getFilesByAppointmentId"
-        //if (commit) {
-        console.log(me, fn, apptid);
-        //}
-        AppointmentAdapter.getFilesByAppointmentId(apptid, function(err, res) {
-            if (err) {
-                commit(
-                    "setAlert",
-                    { type: "error", message: err.message },
-                    { root: true }
-                );
-            } else {
-                console.log(
-                    "Vuex action Appoinments/getFilesByAppointmentId",
-                    res.data
-                );
+    /********** GETTERS & SETTERS **********/
+
+    setAppointments({ commit }, payload) {
+        commit("setAppointments", payload);
+    },
+
+    setAppointment({ commit }, payload) {
+        for (let i = 0; i < state.appointments.length; i++) {
+            let appt = state.appointments[i];
+            if (appt.apptid === payload.apptid) {
+                commit("updateAppointment", { index: i, appt: payload });
+                return true;
             }
-            for (let appointment of state.appointments) {
-                if (appointment.apptid == apptid) {
-                    appointment["files"] = res.data;
-                    commit("replaceAppointment", appointment);
-                    return;
+        }
+    },
+
+    /* METHODS */
+
+    addAppointment({ commit }, payload) {
+        commit("addAppointment", payload);
+    },
+
+    /**
+     * addMetaFileObjectsByApptId
+     * @param {*} apptid Appointment Id
+     * @returns an array of files for the given appointment id.
+     */
+    async addMetaFileObjectsByApptId({ commit }, apptid) {
+        if (!commit) return;
+        const fn = "addMetaFileObjectsByApptId()";
+        console.log(fn, apptid);
+        const adapter = AppointmentAdapter;
+        await adapter.getFilesByAppointmentId(apptid, (err, res) => {
+            if (err) {
+                return false;
+            } else {
+                //get index
+                let appts = state.appointments;
+                for (let i = 0; i < appts.length; i++) {
+                    if (appts[i].apptid === apptid) {
+                        //update the appointment
+                        console.log(fn, "Adding files.", res.data);
+                        let payload = { index: i, files: res.data };
+                        commit("setAppointmentFiles", payload);
+                        return true;
+                    }
                 }
+                return false;
             }
         });
+    },
+
+    /**
+     * addBinFiles()
+     * Iterates over the "files" array of the "editing" appointment, updating
+     * each meta-file object with the corresponding binary object from the S3
+     * bucket.
+     * @returns True if successful, else whatever.
+     */
+    async addBinFiles() {
+        for (let fileObj of state.editingAppointment.files) {
+            let b = await S3Adapter.getBinaryFileByKey(fileObj.key);
+            let options = { type: fileObj.type };
+            fileObj["file"] = new File([b], fileObj.name, options);
+        }
+        return true;
     },
 
     /**
@@ -149,53 +183,59 @@ const actions = {
     },
 
     /**
-     * saveAppointment
-     * @param {*} param0
-     * @param {*} payload must be an appointment object; no wrapper.
+     * persistNewAppointment
+     * @param {*} Vuex commit instance.
+     * @param {*} payload The appointment to be persisted.
+     * @returns true if successfule, else false.
+     *
      */
-    async saveAppointment({ commit }, payload) {
-        const f = "saveAppointment";
-        if (AppointmentHelper.appointmentExists(payload)) {
-            console.log(me, f, "Updating EXISTING appointment");
-            console.log(me, f, "Payload has files?", payload.files);
-            commit("replaceAppointment", payload);
-            AppointmentAdapter.persistEditedAppointment(payload, function(
-                err,
-                res
-            ) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log(res);
-                }
-            });
+    persistNewAppointment({ commit }, payload) {
+        if (!commit) return;
+        const fn = "persistNewAppointment()";
+        console.log(fn);
 
-            if (payload.files) {
-                console.log(me, f, "Files exist");
-                AppointmentHelper.saveAppointmentFiles(payload);
+        //strip out the binary files before persisting the meta-file object
+        let apptByVal = FileHelper.stripOffBinaryFiles(payload);
+
+        AppointmentAdapter.persistNewAppointment(apptByVal, function(err, res) {
+            if (err) {
+                console.log(me, fn, "Adapter returned", err);
+                return false;
+            } else {
+                console.log(me, fn, "Adapter returned", res);
+                return true;
             }
-        } else {
-            console.log(
-                "AppointmentModule.saveAppointment - saving NEW appointment"
-            );
-            commit("addAppointment", payload);
-            AppointmentAdapter.persistNewAppointment(payload, function(
-                err,
-                res
-            ) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log(res);
-                }
-            });
-        }
+        });
     },
 
-    setEditingActive({ commit }, payload) {
-        console.log(me, "Appointments/setEditingActive", payload);
-        commit("setEditingActive", payload);
+    persistEditedAppointment({ commit }, payload) {
+        if (!commit) return;
+        const fn = "persistNewAppointment()";
+        console.log(fn);
+
+        //strip out the binary files before persisting the meta-file object
+        let apptByVal = FileHelper.stripOffBinaryFiles(payload);
+
+        AppointmentAdapter.persistEditedAppointment(apptByVal, function(
+            err,
+            res
+        ) {
+            console.log(fn, "Adapter returned", err ? err : res);
+            if (err) {
+                return false;
+            } else {
+                return true;
+            }
+        });
     },
+
+    /**
+     * deleteAppointment
+     * @param {*} Vuex commit instance.
+     * @param {*} payload The appointment to be deleted.
+     * Deletes the appointment from the Vuex appointments array and from the
+     * appointment API.
+     */
     deleteAppointment({ commit }, payload) {
         console.log(me, "Deleting", payload);
         let appointments = state.appointments;
@@ -232,6 +272,49 @@ const actions = {
                     }
                 );
             }
+        }
+    },
+
+    /**
+     * cacheFileArrayState
+     * Caches the state of the appointment "files" array containing user-
+     * selected binary files and their Json meta-objects in the Vuex property
+     * "fileArrayLastSavedState". Used to identify the files that were  added
+     * and removed from the array since last time the appointment was
+     * persisted.
+     */
+    async cacheFileArrayState({ commit }, payload) {
+        for (let appt in state.appointments) {
+            if (appt.apptid == payload.apptid) {
+                let apptFiles = appt.files ? appt.files.slice(0) : [];
+                commit("setFileArrayLastSavedState", apptFiles);
+                return true;
+            }
+        }
+        return false;
+    },
+
+    /**
+     *  Management of BINARY appointment files in the S3 bucket
+     *
+     */
+
+    /**
+     * persistAppointmentFiles
+     * @param {*} param0
+     * @param {*} payload: Array of files wrapped in JSON metadata
+     */
+    persistAppointmentFiles: async function({ commit }, payload) {
+        const fn = "persistAppointmentFiles()";
+        console.log(me, fn, payload);
+        if (!commit) console.log("no commit");
+        if (payload.length > 0) {
+            // unpack the binary files from the Json wrapper
+            let binFiles = [];
+            for (let fileObj of payload) {
+                binFiles.push(fileObj.file);
+            }
+            S3Adapter.uploadArray(binFiles);
         }
     },
 };

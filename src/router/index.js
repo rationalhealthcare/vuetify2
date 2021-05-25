@@ -8,6 +8,7 @@ import Profiles from "@/views/Profiles.vue";
 import ConsultantSearchPage from "@/views/ConsultantSearchPage.vue";
 import ConsultantSearchResultsPage from "@/views/ConsultantSearchResultsPage.vue";
 
+
 //import AppointmentNewPage from "@/views/AppointmentNewPage.vue"
 //import NewProfile from "@/views/ProfileNewPage.vue";
 //import ProfileEditPage from "@/views/ProfileEditPage.vue";
@@ -16,9 +17,15 @@ import ConsultantSearchResultsPage from "@/views/ConsultantSearchResultsPage.vue
 Vue.use(VueRouter);
 
 const routes = [
+
   {
     path: "/",
     name: "Profiles",
+    component: Profiles
+  },
+  {
+    path: "/profiles",
+    name: "MyProfiles",
     component: Profiles
   },
   {
@@ -54,11 +61,7 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "newprofile" */ "../views/NewProfile.vue")
   },
-  {
-    path: "/profiles",
-    name: "Profiles",
-    component: Profiles
-  },
+
   {
     path: "/editprofile",
     name: "ProfileEditPage",
@@ -76,7 +79,7 @@ const routes = [
       )
   },
   {
-    path: "/appointments/new",
+    path: "/appointments/new/:pid",
     name: "AppointmentPage",
     component: () =>
       import(
@@ -84,8 +87,8 @@ const routes = [
       )
   },
   {
-    path: "/appointment/edit",
-    name: "AppointmentPage",
+    path: "/appointment/edit/:apptid",
+    name: "EditAppointmentPage",
     component: () =>
       import(
         /* webpackChunkName: "appointmenteditspage" */ "../views/AppointmentPage.vue"

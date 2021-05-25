@@ -92,6 +92,7 @@
 /* ///////////////////////////////////////////////////////////////////////// */
 <script>
 import NavDrawerItems from "@/components/NavDrawerItems.vue";
+const me = "Vue.app";
 export default {
     name: "App",
     components: { NavDrawerItems },
@@ -241,6 +242,8 @@ export default {
             );
         },
         loadProfiles() {
+            const fn = "loadProfiles()";
+            console.log(me, fn);
             if (!this.profiles) {
                 this.$store.dispatch("Profiles/loadProfiles", this.user);
             }
@@ -250,6 +253,8 @@ export default {
         },
         /* NAV DRAWER */
         async loadNavDrawerUserPreferences() {
+            const fn = "loadNavDrawerUserPreferences()";
+            console.log(me, fn);
             await this.$store.dispatch(
                 "UserPrefs/loadNavDrawerUserPreferences",
                 this.user.uid
@@ -264,12 +269,16 @@ export default {
 
         /* THEMES */
         loadThemeUserPreferences: function() {
+            const fn = "loadThemeUserPreferences()";
+            console.log(me, fn);
             this.$store.dispatch(
                 "UserPrefs/loadThemeUserPreferences",
                 this.user.uid
             );
         },
         setActiveTheme: function() {
+            const fn = "setActiveTheme()";
+            console.log("App.vue", fn);
             if (this.themeUserPrefs) {
                 this.$store.commit(
                     "Themes/setActiveTheme",
