@@ -35,12 +35,14 @@ export const S3Adapter = {
     getBinaryFileByKey: async function(key) {
         //wrapped in a promise to execute synchronously
         return new Promise(function(resolve, reject) {
+            const fn = "getBinaryFileByKey()";
             var params = {
                 Bucket: S3_BUCKET,
                 Key: key,
             };
             S3.getObject(params, function(err, data) {
                 if (err) reject(err);
+                console.log(fn, "data", data);
                 resolve(data.Body);
             });
         });
@@ -58,9 +60,8 @@ export const S3Adapter = {
      * contans a 'file' property, which contains the binary file.
      */
     uploadArray: async function(files) {
-        const me = "S3Adapter";
         const fn = "uploadArray()";
-        console.log(me, fn);
+        console.log(fn);
 
         var params = {
             Bucket: "myapi",
@@ -71,14 +72,14 @@ export const S3Adapter = {
             params["Key"] = myfile.key;
             params["Body"] = myfile.file;
 
-            console.log(me, fn, "params", params);
+            console.log(fn, "params", params);
 
             S3.putObject(params, function(err, data) {
                 if (err) {
-                    console.log(me, fn, err, err.stack);
+                    console.log(fn, err, err.stack);
                     return err;
                 } else {
-                    console.log(me, fn, data);
+                    console.log(fn, data);
                     keys.push(data);
                 }
             });
@@ -86,9 +87,33 @@ export const S3Adapter = {
         return keys;
     },
 
-    deleteArray: async function(files) {
-        const fn = "S3Adapter.deleteArray() STUB";
+
+/**
+ * 
+ * @param {*} metaFiles 
+ */
+
+    deleteArray: async function(keys) {
+        const fn = "deleteArray()";
         console.log(fn);
-        return files;
+
+        let objects = [];
+        keys.forEach((key) => objects.push({Key: key}));
+        var params = {
+            Bucket: S3_BUCKET,
+            Delete: {
+                Objects: objects,
+            },
+        };
+
+        console.log(fn, "params", params);
+
+        S3.deleteObjects(params, function(err, data) {
+            if (err) console.log(err, err.stack);
+            else {
+                console.log(data);
+                return data;
+            }
+        });
     },
 }; //class

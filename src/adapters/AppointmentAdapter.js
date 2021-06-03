@@ -28,6 +28,14 @@ const APPT_ENDPOINT = util.format(
     process.env.VUE_APP_API_APPOINTMENT_ENDPOINT
 );
 
+/* const AppointmentFile = function(obj) {
+    this.hash = obj.hash;
+    this.apptid = obj.apptid;
+    this.name = obj.filename;
+    this.type = obj.type;
+    this.key = obj.key;
+}; */
+
 export const AppointmentAdapter = {
     /**
      *
@@ -57,17 +65,56 @@ export const AppointmentAdapter = {
 
     /**
      *
+     * @returns a list of S3 keys for the given appointment id.
+     */
+    getFileKeysByApptId: async function(apptid) {
+        const fn = "getFileKeysByApptId()";
+        console.log(fn);
+        let endpoint = APPT_ENDPOINT + "/filekeys/" + apptid;
+        let headers = REQUEST_HEADERS;
+        headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
+        console.log(me, fn, endpoint);
+        let res = await axios.get(endpoint, headers);
+        return res.data.data;
+    },
+    /*     getFileKeysByApptId: async function(apptid, cb) {
+        const fn = "getFileKeysByApptId()";
+        console.log(fn);
+        let endpoint = APPT_ENDPOINT + "/filekeys/" + apptid;
+        let headers = REQUEST_HEADERS;
+        headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
+        console.log(me, fn, endpoint);
+        let res = await axios.get(endpoint, headers);
+        return res ? cb(null, res.data.data) : cb(res, null);
+    }, */
+    /**
+     *
      * @param {*} payload
      * @param {*} cb: callback (err, res){...}
      */
     persistNewAppointment: async function(payload, cb) {
         const fn = "persistNewAppointment()";
+
         let endpoint = APPT_ENDPOINT + "/appointment";
         let headers = REQUEST_HEADERS;
         headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
         console.log(me, fn, endpoint);
+        /* 
+        //adapt...
+        let metaFilesByVal = payload.files.slice(0);
+        let payloadByVal = Object.assign({}, payload);
 
-        //console.log(me, fn, "Bin files removed.", payload);
+        //remove the binary file from each Json meta-file object
+        metaFilesByVal.forEach((metaFile) => delete metaFile.file);
+
+        //reattach the binary-free meta-files array
+        payloadByVal.files = metaFilesByVal;
+
+        console.log(fn, "payloadByVal", payloadByVal);
+ */
+
+        //adapt... remove binary files
+        payload.files.forEach((metaFile) => delete metaFile.file);
 
         let res = await axios.post(endpoint, payload, headers);
         console.log(me, fn, "API returned", res);
@@ -78,6 +125,9 @@ export const AppointmentAdapter = {
         }
     },
 
+    /**
+     *
+     */
     persistEditedAppointment: async function(payload, cb) {
         const fn = "persistEditedAppointment()";
         console.log(me, fn, "payload", payload);
@@ -86,6 +136,24 @@ export const AppointmentAdapter = {
         let headers = REQUEST_HEADERS;
         headers["Content-Type"] = CONTENT_TYPE_APP_JSON;
         console.log(me, fn, endpoint);
+
+        /* 
+        //adapt...
+        let metaFilesByVal = payload.files.slice(0);
+        let payloadByVal = Object.assign({}, payload);
+        //remove the binary file from each Json meta-file object
+        metaFilesByVal.forEach((metaFile) => delete metaFile.file);
+
+        //reattach the binary-free meta-files array
+        payloadByVal.files = metaFilesByVal;
+
+        console.log(fn, "payloadByVal", payloadByVal);
+ */
+
+        //adapt... remove binary files
+        payload.files.forEach((metaFile) => delete metaFile.file);
+
+        //persist the appointment...
         let res = await axios.put(endpoint, payload, headers);
         console.log(me, fn, "API returned:", JSON.stringify(res));
         if (res) {

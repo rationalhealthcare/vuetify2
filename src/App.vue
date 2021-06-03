@@ -59,7 +59,7 @@
             <!-- Sizes your content based upon application components -->
             <v-main>
                 <!-- Provides the application the proper gutter -->
-                <v-container fluid>
+                <v-container fluid scrollable>
                     <!-- BEGIN ALERT -->
                     <v-layout row v-if="alert">
                         <v-row justify="center" xs11 sm6 lg8 offset-sm3>

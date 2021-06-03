@@ -26,19 +26,28 @@
             </v-card-actions>
 
             <v-card-text>
-                <v-list dense v-if="value">
+                <v-list xclass="overflow-y-auto" xstyle="max-height: 200px" dense>
                     <template v-for="(file, i) in value">
                         <v-list-item :key="i">
                             <v-list-item>
                                 <v-icon left> mdi-file-pdf </v-icon>
-                                <a :href="fileUrls[i]" target="_blank">{{
-                                    file.name
-                                }}</a>
-                                <v-icon right @click="deleteFile(file)">
+
+                                <v-icon left @click="deleteFile(file)">
                                     mdi-delete-circle
                                 </v-icon>
+                                <v-icon left @click="listItem_clicked(file)">
+                                    mdi-open-in-new</v-icon
+                                >
+                                {{ file.name }}
+
+                                <!-- 
+                                <v-icon right @click="deleteFile(metaFile)">
+                                    mdi-delete-circle
+                                </v-icon> 
+                                -->
                             </v-list-item>
                         </v-list-item>
+                        
                     </template>
                 </v-list>
             </v-card-text>
@@ -52,10 +61,11 @@
 */
 const md5 = require("md5");
 const { v4: uuidv4 } = require("uuid");
+import { S3Adapter } from "@/adapters/S3Adapter.js";
 const FileMetaObject = function(obj) {
     this.file = obj;
     this.hash = obj.hash ? obj.hash : md5(obj.name);
-    this.apptid = null;
+    this.apptid = obj.apptid ? obj.apptid : null;
     this.name = obj.name;
     this.type = obj.type;
     this.key =
@@ -72,7 +82,6 @@ export default {
     },
     data: function() {
         return {
-            fileUrls: [],
             accept: "*/*",
             rules: [
                 (value) =>
@@ -82,16 +91,9 @@ export default {
             ],
         };
     },
-    mounted: function() {
-        let files = this.value;
-        if (files) {
-            for (let f of files) {
-                var blob = new Blob([f.file], {
-                    type: f.type,
-                });
-                this.fileUrls.push(URL.createObjectURL(blob));
-            }
-        }
+    mounted: async function() {
+        //console.log("mounting", "this.value.length", this.value.length);
+        //let files = this.value;
     },
     watch: {
         value() {
@@ -99,6 +101,16 @@ export default {
         },
     },
     methods: {
+        listItem_clicked: function(metaFile) {
+            console.log("listItem_clicked()", metaFile);
+            let url = URL.createObjectURL(
+                new Blob([metaFile.file], {
+                    type: metaFile.type,
+                })
+            );
+            window.open(url);
+            URL.revokeObjectURL(url);
+        },
         fileDialogClicked: function() {
             document.getElementById("myfileinput").value = "";
         },
@@ -107,15 +119,14 @@ export default {
             const fn = "fileDialogChanged()";
             console.log(fn);
             var fileInput = document.getElementById("myfileinput");
-            if (fileInput) {
-                // save the urls
-                for (let file of fileInput.files) {
-                    if (!this.fileIsSelected(md5(file.name))) {
-                        let f = new FileMetaObject(file);
-                        f.apptid = this.apptid;
-                        this.fileUrls.push(this.getFileUrl(f));
-                        this.value.push(f);
-                    }
+            console.log(fn, "fileInput.files", fileInput.files);
+            if (!fileInput) return;
+            for (let file of fileInput.files) {
+                if (!this.fileIsSelected(md5(file.name))) {
+                    let f = new FileMetaObject(file);
+                    f.apptid = this.apptid;
+                    f.file = this.getBlob(file);
+                    this.value.push(f);
                 }
             }
         },
@@ -131,11 +142,10 @@ export default {
         },
 
         //utility functions
-        getFileUrl(file) {
-            var blob = new Blob([file], {
+        getBlob(file) {
+            return new Blob([file], {
                 type: file.type,
             });
-            return URL.createObjectURL(blob);
         },
 
         fileIsSelected: function(hash) {
@@ -152,6 +162,14 @@ export default {
             if (bytes == 0) return "0 Bytes";
             var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
             return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
+        },
+        async getFromS3(metaFiles) {
+            console.log("getFromS3()");
+            for (let metaFile of metaFiles) {
+                metaFile["file"] = await S3Adapter.getBinaryFileByKey(
+                    metaFile.key
+                );
+            }
         },
     }, //methods
 };

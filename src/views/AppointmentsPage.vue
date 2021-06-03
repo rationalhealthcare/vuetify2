@@ -256,6 +256,10 @@ export default {
             this.deletingAppointment = null;
             this.dialog = false;
         },
+        //...
+
+
+        
     },
 };
 </script>

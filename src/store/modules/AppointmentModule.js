@@ -12,22 +12,10 @@ const me = "Vuex AppointmentModule";
 import { AppointmentAdapter } from "@/adapters/AppointmentAdapter.js";
 import { S3Adapter } from "@/adapters/S3Adapter.js";
 
-const FileHelper = {
-    /**
-     * Utility function to remove binary files from the meta-file object before
-     * the appointment is persisted to the API.
-     */
-    stripOffBinaryFiles: function(payload) {
-        //strip out the binary files before persisting the meta-file object
-        let apptByVal = Object.assign({}, payload);
-        let filesByVal = apptByVal.files.slice(0);
-        for (let f of filesByVal) {
-            delete f.file;
-        }
-        apptByVal.files = filesByVal;
-        return apptByVal;
-    },
-};
+/**
+ * Utility function to remove binary files from the meta-file object before
+ * the appointment is persisted to the API.
+ */
 
 const state = {
     appointments: [],
@@ -78,6 +66,9 @@ const mutations = {
     setAppointmentFiles(state, payload) {
         state.appointments[payload.index].files = payload.files;
     },
+    setApptFileKeys(state, payload) {
+        state.apptFileKeys = payload;
+    },
 };
 
 const actions = {
@@ -87,7 +78,7 @@ const actions = {
         commit("setAppointments", payload);
     },
 
-    setAppointment({ commit }, payload) {
+    async setAppointment({ commit }, payload) {
         for (let i = 0; i < state.appointments.length; i++) {
             let appt = state.appointments[i];
             if (appt.apptid === payload.apptid) {
@@ -194,10 +185,7 @@ const actions = {
         const fn = "persistNewAppointment()";
         console.log(fn);
 
-        //strip out the binary files before persisting the meta-file object
-        let apptByVal = FileHelper.stripOffBinaryFiles(payload);
-
-        AppointmentAdapter.persistNewAppointment(apptByVal, function(err, res) {
+        AppointmentAdapter.persistNewAppointment(payload, function(err, res) {
             if (err) {
                 console.log(me, fn, "Adapter returned", err);
                 return false;
@@ -210,16 +198,11 @@ const actions = {
 
     persistEditedAppointment({ commit }, payload) {
         if (!commit) return;
-        const fn = "persistNewAppointment()";
+        const fn = "persistEditedAppointment()";
         console.log(fn);
 
-        //strip out the binary files before persisting the meta-file object
-        let apptByVal = FileHelper.stripOffBinaryFiles(payload);
-
-        AppointmentAdapter.persistEditedAppointment(apptByVal, function(
-            err,
-            res
-        ) {
+        const adapt = AppointmentAdapter;
+        adapt.persistEditedAppointment(payload, function(err, res) {
             console.log(fn, "Adapter returned", err ? err : res);
             if (err) {
                 return false;
