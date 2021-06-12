@@ -51,19 +51,20 @@ const mutations = {
         let index = state.appointments.length;
         state.appointments.splice(index, 0, payload);
     },
-
+    removeAppointment(state, index) {
+        //removes one appointment, identified by the given index
+        state.appointments.splice(index, 1);
+    },
     updateAppointment(state, payload) {
         let index = payload.index;
         let appt = payload.appt;
         state.appointments[index] = appt;
     },
-
     setAppointments(state, payload) {
         state.appointments = payload;
     },
-
-    // payload: {index: Number, files:[]}
     setAppointmentFiles(state, payload) {
+        // payload: {index: Number, files:[]}
         state.appointments[payload.index].files = payload.files;
     },
     setApptFileKeys(state, payload) {
@@ -256,6 +257,27 @@ const actions = {
                 );
             }
         }
+    },
+
+    /**
+     *  deleteAppointmentVuexState
+     *
+     *  Deletes the specified appointment from the Vuex appointments array.
+     *  Does not attempt to delete from the Appointments API. Call this when
+     *  navigating away from a new appointment when the user has not "saved"
+     *  the appointment, i.e. the appointment has not been persisted to the
+     *  Appointment API.
+     *
+     * @param apptid is the appointment Id.
+     */
+    deleteAppointmentVuexState({ commit }, apptid) {
+        //example: pos = myArray.map(function(e) { return e.hello; }).indexOf('stevie');
+        const index = state.appointments
+            .map(function(e) {
+                return e.apptid;
+            })
+            .indexOf(apptid);
+        commit("removeAppointment", index);
     },
 
     /**

@@ -80,7 +80,9 @@
                                             ></v-btn
                                         >
                                     </v-card-actions>
-                                    <v-divider v-if="i < appointments.length - 1"></v-divider>
+                                    <v-divider
+                                        v-if="i < appointments.length - 1"
+                                    ></v-divider>
                                 </v-list-item-content>
                             </v-list-item>
                         </template>
@@ -169,7 +171,12 @@
 /** */
 <script>
 "use strict";
+
+import { S3Adapter } from "@/adapters/S3Adapter.js";
+import { AppointmentAdapter as apptApi } from "@/adapters/AppointmentAdapter.js";
+
 const me = "AppointmentsPage";
+
 export default {
     name: "AppointmentsPage",
     data: function() {
@@ -195,6 +202,7 @@ export default {
             editingAppointment: null,
             deletingAppointment: null,
             subjectProfile: null,
+            apptFileKeys: [],
         };
     },
     mounted() {
@@ -244,11 +252,19 @@ export default {
             this.deletingAppointment = appt;
             this.dialog = true;
         },
-        dialogClickDelete() {
+        async dialogClickDelete() {
+            const fn = "dialogClickDelete";
+            console.log(fn);
+
+            // delete files, if any, from the S3 bucket
+            this.deleteFromS3();
+
+            // delete from the API
             this.$store.dispatch(
                 "Appointments/deleteAppointment",
                 this.deletingAppointment
             );
+
             this.deletingAppointment = null;
             this.dialog = false;
         },
@@ -256,10 +272,41 @@ export default {
             this.deletingAppointment = null;
             this.dialog = false;
         },
-        //...
+        /**
+         *
+         */
+        async deleteFromS3() {
+            const fn = "deleteFromS3()";
 
+            // Go to the API to get the keys for the files in S3
+            await this.updateFileKeys();
 
-        
+            console.log(fn, "keys:", this.apptFileKeys);
+
+            // Delete the files, if any, from S3
+            if (this.apptFileKeys.length > 0) {
+                S3Adapter.deleteArray(this.apptFileKeys);
+            }
+        },
+
+        /**
+         * What? Why? How? When?
+         * @returns true on success, otherwise false.
+         */
+        async updateFileKeys() {
+            const fn = "updateFileKeys()";
+
+            const apptid = this.deletingAppointment.apptid;
+            console.log(fn, "apptid", apptid);
+
+            try {
+                const res = await apptApi.getFileKeysByApptId(apptid);
+                console.log(fn, "Adapter returned:", res);
+                this.apptFileKeys = res;
+            } catch (err) {
+                console.log(fn, err);
+            }
+        },
     },
 };
 </script>

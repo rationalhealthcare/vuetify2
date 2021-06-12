@@ -278,15 +278,6 @@ export default {
             let tx = this.transactions.saveButtonClick;
             return tx.persistToApi.state === 1 && tx.updateFileKeys.state === 2;
         },
-        /*         postToS3_ready() {
-            let trans = this.transactions.saveButtonClick;
-            return trans.postToS3.state === 1;
-        },
-
-        deleteFromS3_ready() {
-            let tx = this.transactions.saveButtonClick;
-            return tx.deleteFromS3.state === 1;
-        }, */
         updateBinaryFileStore_ready() {
             let tx = this.transactions.saveButtonClick;
             return (
@@ -343,19 +334,6 @@ export default {
                 await this.trigger(this.save_x.persistToApi);
             }
         },
-
-        /*         async postToS3_ready() {
-            if (this.postToS3_ready) {
-                await this.trigger(this.save_x.postToS3);
-            }
-        },
-
-        async deleteFromS3_ready() {
-            if (this.deleteFromS3_ready) {
-                await this.trigger(this.save_x.deleteFromS3);
-            }
-        }, */
-
         reset() {
             if (this.reset) {
                 let procs = Object.keys(this.save_x);
@@ -369,6 +347,16 @@ export default {
                 this.apptFiles.initialState = this.appointment.files.slice(0);
             }
         },
+    },
+    destroyed() {
+        // If the user has not saved the appointment (i.e. it has not been
+        // persisted to the Appointments API), delete it from the Vuex
+        // appointments array.
+        const fn = "destroyed (Lifecycle hook)";
+        console.log(fn, "Destroying", this.appointment.apptid);
+        if (this.apptLifeCycleState != 1) {
+            myVuex.deleteCachedAppointment(this.appointment.apptid);
+        }
     },
     methods: {
         /********************************************************************************
@@ -423,41 +411,6 @@ export default {
             );
             return result;
         },
-
-        /**
-         *
-         */
-        /*         async postToS3() {
-            const fn = "postToS3()";
-            console.log(fn);
-            const a = this.appointment.files;
-            const b = this.apptFiles.initialState;
-            const newFiles = this.inANotInB(a, b);
-            if (newFiles.length > 0) {
-                try {
-                    await S3Adapter.uploadArray(newFiles);
-                    return true;
-                } catch (e) {
-                    return false;
-                }
-            }
-        }, */
-
-        /**
-         *
-         */
-        /*         async deleteFromS3() {
-            const fn = "deleteFromS3()";
-            console.log(fn);
-            const a = this.apptFiles.initialState;
-            const b = this.appointment.files;
-            const delFiles = this.inANotInB(a, b);
-            console.log(fn, "delFiles", delFiles);
-            if (delFiles.length > 0) {
-                await S3Adapter.deleteArray(delFiles);
-            }
-            return true;
-        }, */
 
         /**
          *
@@ -552,7 +505,8 @@ export default {
             const fn = "initializeNewAppointment()";
             console.log(fn);
             this.initializeSubjectProfile();
-            let appointment = Object.assign({}, myVuex.getAppointmentModel());
+            //let appointment = Object.assign({}, myVuex.getAppointmentModel());
+            let appointment = this.getApptByVal(myVuex.getAppointmentModel())
             console.log("appt model", appointment);
             appointment.apptsubjectid = this.subjectProfile.id;
             appointment.subjectname = this.subjectProfile.name;
@@ -564,7 +518,7 @@ export default {
             //locally cached appointment for editing
             this.appointment = appointment;
 
-            //add the new appointmtne to the Vuex 'appointments' array
+            //add the new appointment to the Vuex 'appointments' array
             myVuex.addAppointment(appointment);
         },
 
@@ -627,7 +581,7 @@ export default {
         },
 
         /**
-         * getApptByVal, name changed from:
+         * getApptByVal, name changed and adapted from:
          * "deepCopyFunction", purloined from:
          * Dr. Derek Austin
          * https://javascript.plainenglish.io/how-to-deep-copy-objects-and-arrays-in-javascript-7c911359b089
@@ -653,16 +607,6 @@ export default {
             return outObject;
         },
 
-        /*         getApptByVal(apptByRef) {
-            let apptByVal = Object.assign({}, apptByRef);
-
-            let filesByVal = [];
-            if (apptByRef.files.length > 0) {
-                filesByVal = apptByRef.files.slice(0);
-            }
-            apptByVal.files = filesByVal;
-            return apptByVal;
-        }, */
         getFileUrl(file) {
             var blob = new Blob([file], {
                 type: file.type,
@@ -725,48 +669,4 @@ export default {
         },
     },
 };
-/*         async cacheAddedFileObjArray() {
-            let tmpEditingFiles = this.fileArrayLastSavedState.slice(0);
-            let tmpLocalFiles = this.appointment.files.slice(0);
-            // New files: in local list but not in Vuex
-            let result = this.inANotInB(tmpLocalFiles, tmpEditingFiles);
-            this.newFiles = Array.isArray(result) ? result : [];
-            return true;
-        }, */
-
-/**
- *  Caches an array of files in preparation to removing them from the S3 bucket.
- */
-/*         async cacheDeletedFileObjArray() {
-            let tmpEditingFiles = this.fileArrayLastSavedState.slice(0);
-            let tmpLocalFiles = this.appointment.files.slice(0);
-            // Removed files: in Vuex and not in the new list
-            let result = this.inANotInB(tmpEditingFiles, tmpLocalFiles);
-            this.delFiles = Array.isArray(result) ? result : [];
-            return true;
-        }, */
-/*         xvuexApptFiles() {
-            console.log("computed/vuexApptFiles()")
-            let apptid = this.$route.params.apptid;
-            let appts = myVuex.getAppointments();
-            for (let appt in appts) {
-                if (appt.apptid === apptid) {
-                    if (appt.files.length > 0) {
-                        return appt.files;
-                    }
-                }
-            }
-            return null;
-        }, */
-/*         _vuexApptFiles() {
-            console.log("watch/vuexApptFiles()")
-            //initializes the local appt meta file cache from Vuex
-            if (this.vuexApptFiles && this.apptFiles.initialized != 1) {
-                this.appointment.files = this.vuexApptFiles;
-                this.apptFiles.initialState = this.appointment.files.slice(0);
-                this.apptFiles.initialized = 1;
-                //get the binaries from S3
-                this.getFromS3();
-            }
-        }, */
 </script>

@@ -26,7 +26,7 @@
             </v-card-actions>
 
             <v-card-text>
-                <v-list xclass="overflow-y-auto" xstyle="max-height: 200px" dense>
+                <v-list dense>
                     <template v-for="(file, i) in value">
                         <v-list-item :key="i">
                             <v-list-item>
@@ -47,7 +47,6 @@
                                 -->
                             </v-list-item>
                         </v-list-item>
-                        
                     </template>
                 </v-list>
             </v-card-text>
@@ -60,16 +59,18 @@
   md5: Copyright © 2011-2015, Paul Vorbach. Copyright © 2009, Jeff Mott.
 */
 const md5 = require("md5");
-const { v4: uuidv4 } = require("uuid");
+//const { v4: uuidv4 } = require("uuid");
 import { S3Adapter } from "@/adapters/S3Adapter.js";
-const FileMetaObject = function(obj) {
+
+//  obj is a binary file selected by the user on user's device
+const FileMetaObject = function(obj, apptid) {
     this.file = obj;
     this.hash = obj.hash ? obj.hash : md5(obj.name);
-    this.apptid = obj.apptid ? obj.apptid : null;
+    this.apptid = apptid;
+    /* this.apptid = obj.apptid ? obj.apptid : null; */
     this.name = obj.name;
     this.type = obj.type;
-    this.key =
-        uuidv4() + "." + obj.name.substring(obj.name.lastIndexOf(".") + 1);
+    this.key = md5(obj.size + obj.lastModified);
 };
 export default {
     name: "ApptFileUpload",
@@ -91,10 +92,7 @@ export default {
             ],
         };
     },
-    mounted: async function() {
-        //console.log("mounting", "this.value.length", this.value.length);
-        //let files = this.value;
-    },
+
     watch: {
         value() {
             this.$emit("input", this.value);
@@ -120,16 +118,38 @@ export default {
             console.log(fn);
             var fileInput = document.getElementById("myfileinput");
             console.log(fn, "fileInput.files", fileInput.files);
-            if (!fileInput) return;
-            for (let file of fileInput.files) {
-                if (!this.fileIsSelected(md5(file.name))) {
-                    let f = new FileMetaObject(file);
-                    f.apptid = this.apptid;
-                    f.file = this.getBlob(file);
-                    this.value.push(f);
+
+            //debugging in progress
+            const selectedFiles = [...fileInput.files];
+            selectedFiles.forEach((binfile) => {
+                const metafile = new FileMetaObject(binfile, this.apptid);
+                let isdupfile = false;
+                let isdupname = false;
+                this.value.forEach((propfile) => {
+                    if (propfile.key == metafile.key) {
+                        isdupfile = true;
+                    }
+                    if (propfile.name == metafile.name) {
+                        isdupname = true;
+                    }
+                });
+                if (!isdupfile) {
+                    //before we push it, if it has the same name as an
+                    //existing file, disambiguate it.
+                    if (isdupname) {
+                        metafile.name =
+                            metafile.name +
+                            "_" +
+                            Math.random()
+                                .toString(36)
+                                .substring(7);
+                    }
+                    this.value.push(metafile);
                 }
-            }
+            });
         },
+
+
 
         deleteFile: function(file) {
             const fn = "deleteFile()";
@@ -142,19 +162,10 @@ export default {
         },
 
         //utility functions
-        getBlob(file) {
+        /*         getBlob(file) {
             return new Blob([file], {
                 type: file.type,
             });
-        },
-
-        fileIsSelected: function(hash) {
-            for (let f of this.value) {
-                if (f.hash === hash) {
-                    return true;
-                }
-            }
-            return false;
         },
 
         byteSize: function(bytes) {
@@ -162,7 +173,8 @@ export default {
             if (bytes == 0) return "0 Bytes";
             var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
             return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
-        },
+        }, */
+
         async getFromS3(metaFiles) {
             console.log("getFromS3()");
             for (let metaFile of metaFiles) {
